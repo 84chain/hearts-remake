@@ -1,0 +1,83 @@
+# Pawns as simplified opponents for Player to keep track of
+
+from setup.setup import *
+from setup.hand import Hand
+
+class Pawn:
+    def __init__(self, id):
+        """
+        Pawn object to help Player() keep track of other players
+        :param id: int
+        """
+        self.id = id
+        self.points = 0
+        self.has_clubs = True
+        self.has_diamonds = True
+        self.has_spades = True
+        self.has_hearts = True
+        self.cards_played = []
+        self.hand = Hand([])
+
+    def is_missing(self, suit):
+        """
+        Sets hasX to False for suit
+        :param suit: ['c', 'd', 's', 'h']
+        :return: None
+        """
+        if suit == "c":
+            self.has_clubs = False
+        elif suit == "d":
+            self.has_diamonds = False
+        elif suit == "s":
+            self.has_spades = False
+        elif suit == "h":
+            self.has_hearts = False
+
+    def has_suit(self, suit):
+        """
+        Whether the Pawn has a specific suit or not
+        :param suit: ['c', 'd', 's', 'h']
+        :return: bool
+        """
+        if suit == "c":
+            return self.has_clubs
+        elif suit == "d":
+            return self.has_diamonds
+        elif suit == "s":
+            return self.has_spades
+        elif suit == "h":
+            return self.has_hearts
+
+    def deal_hand(self, list_card):
+        """
+        Deals hand to Pawn
+        :param list_card: list(Card)
+        :return: None
+        """
+        self.hand = Hand(list_card)
+        self.cards_played = Hand(list_card).to_list()
+
+    def play_card(self, card):
+        """
+        Updates Pawn as card is played from Pawn
+        :param card: Card()
+        :return: None
+        """
+
+        if not in_hand(card, Hand(self.cards_played)):
+            self.cards_played.append(card)
+
+        if card.suit == "c":
+            c_temp = [club for club in self.hand.clubs if club.value != card.value]
+            hand_list = c_temp + self.hand.diamonds + self.hand.spades + self.hand.hearts
+        elif card.suit == "d":
+            d_temp = [diamond for diamond in self.hand.diamonds if diamond.value != card.value]
+            hand_list = self.hand.clubs + d_temp + self.hand.spades + self.hand.hearts
+        elif card.suit == "s":
+            s_temp = [spade for spade in self.hand.spades if spade.value != card.value]
+            hand_list = self.hand.clubs + self.hand.diamonds + s_temp + self.hand.hearts
+        elif card.suit == "h":
+            h_temp = [heart for heart in self.hand.hearts if heart.value != card.value]
+            hand_list = self.hand.clubs + self.hand.diamonds + self.hand.spades + h_temp
+
+        Pawn.deal_hand(self, hand_list)
