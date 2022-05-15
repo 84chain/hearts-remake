@@ -77,6 +77,7 @@ class Arena:
         """
 
         total_points = np.zeros(4)
+        points = [[], [], [], []]
         total_rankings = np.zeros([4, 4])
 
         for _ in tqdm(range(num), desc="Arena.playGames"):
@@ -85,6 +86,7 @@ class Arena:
 
             for i in range(4):
                 total_points[i] += game_result[i]
+                points[i].append(game_result[i])
                 total_rankings[i][rankings[i]] += 1
 
             self.player1.reset_player()
@@ -92,4 +94,4 @@ class Arena:
             self.player3.reset_player()
             self.player4.reset_player()
 
-        return total_points, total_rankings
+        return total_points, total_rankings, points

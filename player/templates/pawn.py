@@ -16,6 +16,7 @@ class Pawn:
         self.has_spades = True
         self.has_hearts = True
         self.cards_played = []
+        self.cards_left = 13
         self.hand = Hand([])
 
     def is_missing(self, suit):
@@ -80,4 +81,36 @@ class Pawn:
             h_temp = [heart for heart in self.hand.hearts if heart.value != card.value]
             hand_list = self.hand.clubs + self.hand.diamonds + self.hand.spades + h_temp
 
+        self.cards_left -= 1
+
         Pawn.deal_hand(self, hand_list)
+
+
+    def create_clone(self, suit):
+        """
+        Creates a clone missing suit
+        :param suit: ['c', 'd', 's', 'h']
+        :return: Pawn
+        """
+        p = Pawn(self.id)
+        p.points = self.points
+        if suit == "c":
+            p.has_clubs = False
+        else:
+            p.has_clubs = self.has_clubs
+        if suit == "d":
+            p.has_diamonds = False
+        else:
+            p.has_diamonds = self.has_diamonds
+        if suit == "s":
+            p.has_spades = False
+        else:
+            p.has_spades = self.has_spades
+        if suit == "h":
+            p.has_hearts = False
+        else:
+            p.has_hearts = self.has_hearts
+        p.cards_played = self.cards_played
+        p.cards_left = self.cards_left
+        p.hand = self.hand
+        return p

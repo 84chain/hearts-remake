@@ -2,6 +2,7 @@
 from setup.table import *
 from setup.hand import *
 import statistics
+from math import comb
 
 # Weights for passing
 diamond_weights = [0, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, -0.5, -1, -1.5, -2]
@@ -16,9 +17,16 @@ suits_preference = {
     "e": 10
 }
 
-risk_tolerance = 0.5 # risk_tolerance is from [0, 1], 0 meaning always avoiding taking, and 1 always taking.
+risk_tolerance = 0.001 # risk_tolerance is from [0, 1], 0 meaning always avoiding taking, and 1 always taking.
 
 # HELPERS
+def c_comb(n, k):
+    if n < 0 or k < 0:
+        return 0
+    else:
+        return comb(n, k)
+
+
 def return_highest(table):
     """
     Highest card of the correct suit that is currently taking
@@ -276,7 +284,7 @@ def guaranteed_takes(hand, cards_played):
     :param cards_played: list(Card)
     :return: dict
     """
-    guaranteed_takes = {
+    takes = {
         "c": 0,
         "d": 0,
         "s": 0,
@@ -292,20 +300,20 @@ def guaranteed_takes(hand, cards_played):
     if hand.clubs:
         for card in hand.clubs:
             if card.to_int() > clubs_left[-1]:
-                guaranteed_takes['c'] += 1
+                takes['c'] += 1
     if hand.diamonds:
         for card in hand.diamonds:
             if card.to_int() > diamonds_left[-1]:
-                guaranteed_takes['d'] += 1
+                takes['d'] += 1
     if hand.spades:
         for card in hand.spades:
             if card.to_int() > spades_left[-1]:
-                guaranteed_takes['s'] += 1
+                takes['s'] += 1
     if hand.hearts:
         for card in hand.hearts:
             if card.to_int() > hearts_left[-1]:
-                guaranteed_takes['h'] += 1
-    return guaranteed_takes
+                takes['h'] += 1
+    return takes
 
 
 def contains_suit(list_card, suit):
@@ -336,11 +344,12 @@ def create_pool(pawn, cards_played, own_hand):
     diamonds = len(diamonds_left) - len(pawn.hand.diamonds) if pawn.has_diamonds else 0
     spades = len(spades_left) - len(pawn.hand.spades) if pawn.has_spades else 0
     hearts = len(hearts_left) - len(pawn.hand.hearts) if pawn.has_hearts else 0
-    return {"clubs": clubs,
+    return {"id": pawn.id,
+            "clubs": clubs,
             "diamonds": diamonds,
             "spades": spades,
             "hearts": hearts,
-            "hand": len(pawn.hand.to_list()),
+            "hand": pawn.cards_left,
             "size": clubs + diamonds + spades + hearts}
 
 
@@ -359,7 +368,37 @@ def intersection(pool1, pool2):
             "size": min(pool1["size"], pool2["size"])}
 
 
-def is_subset(pool1, pool2):
+def union(pool1, pool2):
+    """
+    Returns the union of 2 pools
+    :param pool1: dict
+    :param pool2: dict
+    :return: dict
+    """
+    return {"clubs": max(pool1["clubs"], pool2["clubs"]),
+            "diamonds": max(pool1["diamonds"], pool2["diamonds"]),
+            "spades": max(pool1["spades"], pool2["spades"]),
+            "hearts": max(pool1["hearts"], pool2["hearts"]),
+            "hand": max(pool1["hand"], pool2["hand"]),
+            "size": max(pool1["size"], pool2["size"])}
+
+
+def not_in(pool1, pool2):
+    """
+    Returns everything in pool1 that is not in pool 2
+    :param pool1: dict
+    :param pool2: dict
+    :return: dict
+    """
+    return {"clubs": max(0, pool1["clubs"] - pool2["clubs"]),
+            "diamonds": max(0, pool1["clubs"] - pool2["clubs"]),
+            "spades": max(0, pool1["spades"] - pool2["spades"]),
+            "hearts": max(0, pool1["hearts"] - pool2["hearts"]),
+            "hand": max(0, pool1["hand"] - pool2["hand"]),
+            "size": max(0, pool1["size"] - pool2["size"])}
+
+
+def subset(pool1, pool2):
     """
     Returns True if pool1 is a subset of pool2
     :param pool1: dict
@@ -384,17 +423,17 @@ def order_pools(pawns, cards_played, own_hand):
     arrows = []
     players = [[p, create_pool(p, cards_played, own_hand)] for p in pawns]
     pools = [pool1, pool2, pool3] = [p[-1] for p in players]
-    if is_subset(pool1, pool2):
+    if subset(pool1, pool2):
         arrows.append([0, 1])
-    elif is_subset(pool2, pool1):
+    elif subset(pool2, pool1):
         arrows.append([1, 0])
-    if is_subset(pool2, pool3):
+    if subset(pool2, pool3):
         arrows.append([1, 2])
-    elif is_subset(pool3, pool2):
+    elif subset(pool3, pool2):
         arrows.append([2, 1])
-    if is_subset(pool3, pool1):
+    if subset(pool3, pool1):
         arrows.append([2, 0])
-    elif is_subset(pool1, pool3):
+    elif subset(pool1, pool3):
         arrows.append([0, 2])
     if not len(arrows):
         case = 5
@@ -431,5 +470,39 @@ def order_pools(pawns, cards_played, own_hand):
 
 def calculate_combinations(case_and_players):
     case = case_and_players["case"]
-    players = [{"player": p[0], "pool": p[-1]} for p in case_and_players["players"]]
-    pass
+    players = [p[-1] for p in case_and_players["players"]]
+    l = players[0]
+    u = players[1]
+    r = players[-1]
+    combinations = 0
+    if case == 1:
+        combinations = c_comb(l["size"], l["hand"]) * c_comb( u["size"] - l["hand"], u["hand"])
+    elif case == 2:
+        u_hand_reduced = u["hand"] - not_in(u, intersection(u, r))["size"]
+        combinations = c_comb(l["size"], l["hand"]) * c_comb(intersection(u, r)["size"], u_hand_reduced)
+    elif case == 3:
+        l_not_in_l_r = l["hand"] - not_in(l, intersection(l, r))["size"]
+        for i in range(l["hand"]):
+            combinations += c_comb(intersection(l, r)["size"], i) * c_comb(l_not_in_l_r, l["hand"] - i) * c_comb(r["size"] - i, r["hand"])
+    elif case == 4:
+        r_hand_reduced = r["hand"] - not_in(r, intersection(r, u))["size"]
+        l_not_in_l_r = l["hand"] - not_in(l, intersection(l, r))["size"]
+        for i in range(l["hand"]):
+            combinations += c_comb(intersection(l, r)["size"], i) * c_comb(l_not_in_l_r, l["hand"] - i) * c_comb(intersection(r, u)["size"] - i, r_hand_reduced)
+    elif case == 5:
+        l_u_r = intersection(intersection(l, u), r)
+        l_u_not_in_l_u_r = not_in(intersection(l, u), l_u_r)["size"]
+        l_r_not_in_l_u_r = not_in(intersection(l, r), l_u_r)["size"]
+        u_r_not_in_l_u_r = not_in(intersection(u, r), l_u_r)["size"]
+        z_l = l["hand"] - not_in(l, union(intersection(l, u), intersection(l, r)))["size"]
+        for i in range(l["hand"]):
+            for j in range(l["hand"]):
+                z_r = r["hand"] - not_in(r, u)["size"] + j
+                for k in range(r["hand"]):
+                    combinations += c_comb(l_u_r["size"], i) * c_comb(
+                        l_r_not_in_l_u_r, j) * c_comb(
+                        l_u_r["size"] - i, k) * c_comb(
+                        l_u_not_in_l_u_r, z_l - (i + j)) * c_comb(
+                        u_r_not_in_l_u_r, z_r - k
+                    )
+    return combinations

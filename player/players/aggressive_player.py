@@ -47,7 +47,7 @@ class AggressivePlayer(Player):
                     else:
                         return AggressivePlayer.avoid_taking(self, table)
                 else:
-                    return AggressivePlayer.gamble(self, moves, table)
+                    return AggressivePlayer.gamble(self, table)
             else:
                 return AggressivePlayer.give_l(self)
 
@@ -90,7 +90,7 @@ class AggressivePlayer(Player):
                     else:
                         return AggressivePlayer.avoid_taking(self, table)
                 else:
-                    return AggressivePlayer.gamble(self, moves, table)
+                    return AggressivePlayer.gamble(self, table)
             else:
                 return AggressivePlayer.give_l(self)
 

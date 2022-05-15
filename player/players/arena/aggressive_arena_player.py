@@ -21,9 +21,9 @@ class AggressiveArenaPlayer(ArenaPlayer):
             hand_list.append(Card(i))
         self.hand = Hand(hand_list)
 
+
         # TEST BEGINS
-        # pools = order_pools([i for i in self.pawns if i.id != self.id], self.cardsPlayed, self.hand)
-        # print(pools)
+        # print(combinations)
         # print([[i.hasClubs, i.hasDiamonds, i.hasSpades, i.hasHearts] for i in self.pawns])
         # TEST ENDS
 
@@ -32,6 +32,7 @@ class AggressiveArenaPlayer(ArenaPlayer):
             table.card_played(Card(state.round_played[i]), self)
         duped_list = self.cards_played + table.cards
         self.cards_played = list(set(duped_list))
+        AggressiveArenaPlayer.is_missing_Suit(self, table)
 
         if len(valid_moves) == 1:
             card = Card(valid_moves[0])

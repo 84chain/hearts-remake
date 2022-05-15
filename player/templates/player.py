@@ -3,8 +3,6 @@ from setup.setup import *
 from setup.hand import *
 from setup.suit import *
 from setup.table import *
-from math import comb
-
 class Player:
     def __init__(self, id, name):
         """
@@ -117,8 +115,18 @@ class Player:
                     self.pawns[pawn].is_missing(suit)
 
     def is_missing_Suit(self, table):
-        remaining_pawns = [p for p in self.pawns if p.id != self.id]
-        pass
+        other_pawns = [p for p in self.pawns if p.id != self.id]
+        remaining_pawns = [p for p in other_pawns if p.id in [i for i in [0, 1, 2, 3] if i not in table.player_ids]]
+        cloned_pawns = [p.create_clone(table.suit) for p in remaining_pawns]
+        target_combinations = calculate_combinations(order_pools(cloned_pawns, self.cards_played, self.hand))
+        total_combinations = calculate_combinations(order_pools(other_pawns, self.cards_played, self.hand))
+        if total_combinations == 0:
+            chance = 0
+        else:
+            chance = target_combinations / total_combinations
+        return chance
+
+
 
     def choose_card(self):
         """
@@ -390,59 +398,17 @@ class Player:
 
         return sorted_list[0][0]
 
-    def gamble(self, moves, table):
+    def gamble(self, table):
         """
         Deciding what to play when playing 2nd/3rd and/or uncertain
-        -- Don't even bother, I'm changing this soon
         :param moves: list(Card) (legal moves)
         :param table: Table()
         :return: Card()
         """
-        clubs = self.hand.clubs
-        spades = self.hand.spades
-        for card in moves:
-            suit = card.suit
-            if suit == "c":
-                clubs_left = [c for c in all_clubs if c.value not in
-                             [i.value for i in clubs] and c.value not in [k.value for k in
-                                                                          Hand(self.cards_played).clubs]
-                             and c.value not in [j.value for j in table.cards if j.suit == suit]]
-                if len(clubs_left) >= (3 - table.length):
-                    return Player.safest_take(self, table)
-                else:
-                    return Player.avoid_taking(self, table)
-            elif suit == "d":
-                if in_hand(d_jack, self.hand):
-                    if jack_highest(self.cards_played, self.hand):
-                        return d_jack
-                    else:
-                        return Player.avoid_taking(self, table)
-                else:
-                    if can_block(self.hand):
-                        return Player.block_j(self)
-                    else:
-                        return Player.safest_take(self, table)
-            elif suit == "s":
-                lower_spades = [s for s in spades if s.value < 12]
-                spades_left = [s for s in all_spades if s.value not in
-                              [i.value for i in spades] and s.value not in [k.value for k in
-                                                                            Hand(self.cards_played).spades]
-                              and s.value not in [j.value for j in table.cards if j.suit == suit]]
-                if played(q_spades, self.cards_played):
-                    if len(spades_left) >= (3 - table.length):
-                        return Player.safest_take(self, table)
-                    else:
-                        return Player.avoid_taking(self, table)
-                else:
-                    if bool(len(lower_spades)):
-                        if len(lower_spades) == 1:
-                            return lower_spades[0]
-                        else:
-                            return lower_spades[-1]
-                    else:
-                        return Player.safest_take(self, table)
-            elif suit == "h":
-                return Player.avoid_taking(self, table)
+        if Player.is_missing_Suit(self, table) >= risk_tolerance:
+            return Player.avoid_taking(self, table)
+        else:
+            return Player.safest_take(self, table)
 
     def can_shoot(self):
         """
