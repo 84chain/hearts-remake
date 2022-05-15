@@ -51,10 +51,19 @@ class Player:
     def count_points(self):
         """
         Tallies points
-        :return: None
+        :return: int
         """
-        for card in self.cards_took:
-            self.points += card.points
+        if len([i for i in self.cards_took if i.suit == "h"]) == 13:
+            if in_hand(d_jack, Hand(self.cards_took)):
+                self.points -= 100
+                remaining_takes = [i for i in self.cards_took if not i.is_eq(d_jack)]
+            else:
+                remaining_takes = self.cards_took
+            for card in remaining_takes:
+                self.points -= card.points
+        else:
+            for card in self.cards_took:
+                self.points += card.points
         if bool(len([c for c in self.cards_took if c.is_eq(club_10)])):
             self.points -= 10
             if self.points == 0:
@@ -62,6 +71,17 @@ class Player:
             else:
                 self.points *= 2
             self.has_10 = True
+        return self.points
+
+    def running_count(self):
+        """
+        Returns a running count of points without changing the field
+        :param cards_took: list(Card)
+        :return: int
+        """
+        points = Player.count_points(self)
+        self.points = 0
+        return points
 
     def legal_moves(self, first_card):
         """
@@ -116,8 +136,7 @@ class Player:
 
     def is_missing_Suit(self, table):
         other_pawns = [p for p in self.pawns if p.id != self.id]
-        remaining_pawns = [p for p in other_pawns if p.id in [i for i in [0, 1, 2, 3] if i not in table.player_ids]]
-        cloned_pawns = [p.create_clone(table.suit) for p in remaining_pawns]
+        cloned_pawns = [p.create_clone(table.suit) if p.id not in table.player_ids else p for p in other_pawns]
         target_combinations = calculate_combinations(order_pools(cloned_pawns, self.cards_played, self.hand))
         total_combinations = calculate_combinations(order_pools(other_pawns, self.cards_played, self.hand))
         if total_combinations == 0:

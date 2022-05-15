@@ -1,249 +1,216 @@
 import random
+import csv
 
 from player.players.aggressive_player import *
 
 
 # HELPERS
-def playerorder(id):
+def player_order(id):
     return [id, (id + 1) % 4, (id + 2) % 4, (id + 3) % 4]
 
 
-def nextfirstplayer(table, playedorder):
+def next_first_player(table, played_order):
     for card in table.cards:
         if is_taking(table, card):
-            return playedorder[table.cards.index(card)]
+            return played_order[table.cards.index(card)]
 
 
 class Game:
-    def __init__(self, print_bool):
+    def __init__(self, pass_direction):
         self.deck = [Card(suit + value) for suit in "cdsh" for value in
                      [str(n) for n in range(2, 11)] + ["j", "q", "k", "a"]]
         random.shuffle(self.deck)
 
-        self.gamejson = []
-        self.passdirection = -1
-        self.print = print_bool
+        self.vector = []
+
+        self.pass_direction = pass_direction # 1, -1, 2
 
         hands = [self.deck[:13], self.deck[13:26], self.deck[26:39], self.deck[39:]]
-
-        self.player1 = AggressivePlayer(0, 0)
-        self.player2 = AggressivePlayer(1, 1)
-        self.player3 = AggressivePlayer(2, 2)
-        self.player4 = AggressivePlayer(3, 3)
-        self.players = [self.player1, self.player2, self.player3, self.player4]
-        self.passedhanddata = []
+        self.player_0 = AggressivePlayer(0, 0)
+        self.player_1 = AggressivePlayer(1, 1)
+        self.player_2 = AggressivePlayer(2, 2)
+        self.player_3 = AggressivePlayer(3, 3)
+        self.players = [self.player_0, self.player_1, self.player_2, self.player_3]
+        self.pass_data = []
 
         for i in range(4):
             self.players[i].deal_hand(hands[i])
 
-        self.initialhanddata = [{"Player": 0, "Hand": self.player1.hand.to_string()},
-                                {"Player": 1, "Hand": self.player2.hand.to_string()},
-                                {"Player": 2, "Hand": self.player3.hand.to_string()},
-                                {"Player": 3, "Hand": self.player4.hand.to_string()}]
+        # dealt hand
+        self.vector.append(self.player_0.hand.to_int())
 
-        if self.print:
-            Game.printHand(self)
+        p_0_pass = Game.passCards(self)
 
-        Game.passCards(self)
+        # pass
+        self.vector.append(Hand(p_0_pass).to_int())
 
-        self.passedhanddata = [{"Player": 0, "Hand": self.player1.hand.to_string()},
-                               {"Player": 1, "Hand": self.player2.hand.to_string()},
-                               {"Player": 2, "Hand": self.player3.hand.to_string()},
-                               {"Player": 3, "Hand": self.player4.hand.to_string()}]
+        self.vector.append(self.pass_direction)
 
-        if self.print:
-            Game.printHand(self)
+        # post-pass
+        self.vector.append(self.player_0.hand.to_int())
 
-
-    def setName(self, name):
-        self.player1.name = name
-
-    def getHand(self):
-        return self.player1.hand.to_string()
 
     def passCards(self):
-        if self.print:
-            print(f"---HANDS DEALT, PASSING {['', 'RIGHT', 'ACROSS', 'LEFT'][self.passdirection]}---\n")
-        p1pass = self.player1.pass_cards()
-        p2pass = self.player2.pass_cards()
-        p3pass = self.player3.pass_cards()
-        p4pass = self.player4.pass_cards()
+        p_0_pass = self.player_0.pass_cards()
+        p_1_pass = self.player_1.pass_cards()
+        p_2_pass = self.player_2.pass_cards()
+        p_3_pass = self.player_3.pass_cards()
 
-        self.passes = [p1pass, p2pass, p3pass, p4pass]
-        for p in range(4):
-            newp = (p - self.passdirection) % 4
-            if self.print:
-                print(f"Player {p} passed {[c.to_short_string() for c in self.passes[p]]} to Player {newp}")
-        if self.print:
-            print()
+        self.passes = [p_0_pass, p_1_pass, p_2_pass, p_3_pass]
 
-        if self.passdirection == -1:
-            self.player1.receive_pass(p4pass)
-            self.player2.receive_pass(p1pass)
-            self.player3.receive_pass(p2pass)
-            self.player4.receive_pass(p3pass)
-        elif self.passdirection == 2:
-            self.player1.receive_pass(p3pass)
-            self.player2.receive_pass(p4pass)
-            self.player3.receive_pass(p1pass)
-            self.player4.receive_pass(p2pass)
-        elif self.passdirection == 1:
-            self.player1.receive_pass(p2pass)
-            self.player2.receive_pass(p3pass)
-            self.player3.receive_pass(p4pass)
-            self.player4.receive_pass(p1pass)
+        if self.pass_direction == -1:
+            self.player_0.receive_pass(p_3_pass)
+            self.player_1.receive_pass(p_0_pass)
+            self.player_2.receive_pass(p_1_pass)
+            self.player_3.receive_pass(p_2_pass)
+        elif self.pass_direction == 2:
+            self.player_0.receive_pass(p_2_pass)
+            self.player_1.receive_pass(p_3_pass)
+            self.player_2.receive_pass(p_0_pass)
+            self.player_3.receive_pass(p_1_pass)
+        elif self.pass_direction == 1:
+            self.player_0.receive_pass(p_1_pass)
+            self.player_1.receive_pass(p_2_pass)
+            self.player_2.receive_pass(p_3_pass)
+            self.player_3.receive_pass(p_0_pass)
 
-        if self.print:
-            print("---PASSED CARDS---\n")
-
-    def printHand(self):
-        if self.passedhanddata != []:
-            for i in self.passedhanddata:
-                print(i)
-        else:
-            for i in self.initialhanddata:
-                print(i)
-        print()
-
-    def play(self):
-        # ROUND 1
-        has3 = [player for player in self.players if in_hand(club_3, player.hand)][0].id
-        order1 = playerorder(has3)
-        table1 = Table()
-        it1 = 0
-        orderlist = []
-
-        while it1 < 4:
-            c_player = self.players[order1[it1]]
-            card = c_player.play_card(table1)
-            table1.card_played(card, c_player)
-            self.gamejson.append({"Player": c_player.id,
-                                  "Card": card.to_short_string()})
-            it1 += 1
-        cardlist = []
-        for card in table1.cards:
-            cardlist.append(card.to_string())
-        for p in self.players:
-            p.update(table1)
-        orderlist.append(playerorder(nextfirstplayer(table1, order1)))
-
-        # ROUND 2-13
-        for rounds in range(2, 14):
-            table = Table()
-            it = 0
-            order = orderlist[-1]
-            while it < 4:
-                c_player = self.players[order[it]]
-                card = c_player.play_card(table)
-                table.card_played(card, c_player)
-                self.gamejson.append({"Player": c_player.id, "Card": card.to_short_string()})
-                it += 1
-            cardlist = []
-            for card in table.cards:
-                cardlist.append(card.to_string())
-            for p in self.players:
-                p.update(table)
-            orderlist.append(playerorder(nextfirstplayer(table, order)))
-
-        self.pointdata = []
-        for p in self.players:
-            p.count_points()
-            self.pointdata.append({"Player": p.id,
-                                   "Points": p.points})
-
-        return self.pointdata
-
-    def pplay(self):
-        # ROUND 1
-        has3 = [player for player in self.players if in_hand(club_3, player.hand)][0].id
-        order1 = playerorder(has3)
-        table1 = Table()
-        it1 = 0
-        orderlist = []
-
-        while it1 < 4:
-            c_player = self.players[order1[it1]]
-            card = c_player.play_card(table1)
-            table1.card_played(card, c_player)
-            self.gamejson.append({"Player": c_player.id,
-                                  "Card": card.to_short_string()})
-            it1 += 1
-        cardlist = []
-        for card in table1.cards:
-            cardlist.append(card.to_string())
-        for p in self.players:
-            p.update(table1)
-        print(f"Round {1} OVER:\n{', '.join(cardlist)}\n")
-        orderlist.append(playerorder(nextfirstplayer(table1, order1)))
-
-        # ROUND 2-13
-        for rounds in range(2, 14):
-            table = Table()
-            it = 0
-            order = orderlist[-1]
-            while it < 4:
-                c_player = self.players[order[it]]
-                card = c_player.play_card(table)
-                table.card_played(card, c_player)
-                self.gamejson.append({"Player": c_player.id, "Card": card.to_short_string()})
-                it += 1
-            cardlist = []
-            for card in table.cards:
-                cardlist.append(card.to_string())
-            for p in self.players:
-                p.update(table)
-            print(f"Round {rounds} OVER:\n{', '.join(cardlist)}\n")
-            orderlist.append(playerorder(nextfirstplayer(table, order)))
-
-        self.pointdata = []
-        for p in self.players:
-            p.count_points()
-            self.pointdata.append({"Player": p.id,
-                                   "Points": p.points})
-        for p in self.players:
-            if p.has_10:
-                print(f"Player {p.id}: {p.points} points! (10 of clubs)")
-            else:
-                print(f"Player {p.id}: {p.points} points!")
-
-        return self.pointdata
-
-    def getResult(self):
-        return self.gamejson
-
-    def run(self, print_result):
-        if self.print:
-            g = Game.pplay(self)
-            print("\nGAME OVER\n")
-            for p in g:
-                print(f"Player {p['Player']}: {p['Points']} points")
-        else:
-            g = Game.play(self)
-            if print_result:
-                print("\nGAME OVER\n")
-                for p in g:
-                    print(f"Player {p['Player']}: {p['Points']} points")
-
+        return p_0_pass
 
     def reset(self):
         self.deck = [Card(suit + value) for suit in "cdsh" for value in
                      [str(n) for n in range(2, 11)] + ["j", "q", "k", "a"]]
         random.shuffle(self.deck)
 
-        self.gamejson = []
+        self.vector = []
+
+        self.pass_direction = -1  # 1, -1, 2
 
         hands = [self.deck[:13], self.deck[13:26], self.deck[26:39], self.deck[39:]]
-
-        self.player1 = AggressivePlayer(0, 0)
-        self.player2 = AggressivePlayer(1, 1)
-        self.player3 = AggressivePlayer(2, 2)
-        self.player4 = AggressivePlayer(3, 3)
-        self.players = [self.player1, self.player2, self.player3, self.player4]
+        self.player_0 = AggressivePlayer(0, 0)
+        self.player_1 = AggressivePlayer(1, 1)
+        self.player_2 = AggressivePlayer(2, 2)
+        self.player_3 = AggressivePlayer(3, 3)
+        self.players = [self.player_0, self.player_1, self.player_2, self.player_3]
+        self.pass_data = []
 
         for i in range(4):
             self.players[i].deal_hand(hands[i])
 
-        self.handdata = [{"Player": 0, "Hand": self.player1.hand.to_string()},
-                         {"Player": 1, "Hand": self.player2.hand.to_string()},
-                         {"Player": 2, "Hand": self.player3.hand.to_string()},
-                         {"Player": 3, "Hand": self.player4.hand.to_string()}]
+        # dealt hand
+        self.vector.append(self.player_0.hand.to_int_list())
+
+        p_0_pass = Game.passCards(self)
+
+        # pass
+        self.vector.append(card_list_to_flags(p_0_pass))
+
+        if self.pass_direction < 0:
+            self.vector.append([1, 0, 0])
+        elif self.pass_direction == 2:
+            self.vector.append([0, 1, 0])
+        elif self.pass_direction == 1:
+            self.vector.append([0, 0, 1])
+
+        # post-pass
+        self.vector.append(self.player_0.hand.to_int_list())
+
+    def play(self):
+        # ROUND 1
+        player_with_3 = [player for player in self.players if in_hand(club_3, player.hand)][0].id
+        first_player_order = player_order(player_with_3)
+        first_table = Table()
+        order_list = []
+
+        for p in range(4):
+            c_player = self.players[first_player_order[p]]
+            card = c_player.play_card(first_table)
+            first_table.card_played(card, c_player)
+
+            # recording data
+            if c_player.id == 0:
+                vector = []
+                points = c_player.running_count()
+                vector_player_order = first_player_order.index(0)
+                int_suit = ['c', 'd', 's', 'h'].index(first_table.suit)
+
+                # append to vector
+                vector.append(1)
+                vector.append(Hand([i for i in first_table.cards]).to_int())
+                vector.append(Hand(c_player.cards_played).to_int())
+                vector.append(int_suit)
+                vector.append(vector_player_order)
+                vector.append(Hand([i for i in c_player.cards_took if i.suit == "h"]).to_int())
+                vector.append(points)
+
+                # save
+                with open('game_data.csv', 'a', encoding='UTF8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(self.vector + vector)
+
+
+        card_list = []
+        for card in first_table.cards:
+            card_list.append(card.to_string())
+
+
+        for p in self.players:
+            p.update(first_table)
+        order_list.append(player_order(next_first_player(first_table, first_player_order)))
+
+        # ROUND 2-13
+        for rounds in range(2, 14):
+            table = Table()
+            order = order_list[-1]
+            for p in range(4):
+                c_player = self.players[order[p]]
+                card = c_player.play_card(table)
+                table.card_played(card, c_player)
+
+                if c_player.id == 0:
+                    vector = []
+                    points = c_player.running_count()
+                    vector_player_order = order.index(0)
+                    int_suit = ['c', 'd', 's', 'h'].index(table.suit)
+
+                    # append to vector
+                    vector.append(rounds)
+                    vector.append(Hand([i for i in first_table.cards]).to_int())
+                    vector.append(Hand(c_player.cards_played).to_int())
+                    vector.append(int_suit)
+                    vector.append(vector_player_order)
+                    vector.append(Hand([i for i in c_player.cards_took if i.suit == "h"]).to_int())
+                    vector.append(points)
+
+                    # save
+                    with open('game_data.csv', 'a', encoding='UTF8') as f:
+                        writer = csv.writer(f)
+                        writer.writerow(self.vector + vector)
+
+            card_list = []
+            for card in table.cards:
+                card_list.append(card.to_string())
+            for p in self.players:
+                p.update(table)
+            order_list.append(player_order(next_first_player(table, order)))
+
+        pointdata = []
+        for p in self.players:
+            p.count_points()
+            pointdata.append({"Player": p.id,
+                                   "Points": p.points})
+
+        # reset
+        Game.reset(self)
+
+        return pointdata
+
+iterations = 100
+for i in range(iterations):
+    if i % 3 == 0:
+        pass_direction = -1
+    elif i % 3 == 1:
+        pass_direction = 1
+    else:
+        pass_direction = 2
+    g = Game(pass_direction)
+    print(i, g.play())

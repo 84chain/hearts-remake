@@ -254,6 +254,13 @@ def card_index(card, list_card):
     """
     return [i.to_int() for i in list_card].index(card.to_int())
 
+def card_list_to_flags(list_card):
+    flags = Hand(list_card).to_int_list()
+    empty_hand = [0] * 52
+    for i in flags:
+        empty_hand[i] = 1
+    return empty_hand
+
 
 def player_order(player_position):
     """

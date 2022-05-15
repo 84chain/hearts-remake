@@ -79,7 +79,7 @@ class Hand:
         """
         return [c.to_int() for c in self.list]
 
-    def toInt(self):
+    def to_int(self):
         """
         Converts into an int
         :return: int
