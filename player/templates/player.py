@@ -115,7 +115,7 @@ class Player:
         elif first_card.suit == "h":
             return bool(len(self.hand.hearts))
 
-    def update(self, table):
+    def update_round(self, table):
         """
         Updates Player after a round
         :param table: Table()
@@ -133,6 +133,7 @@ class Player:
             if no_suit_players:
                 for pawn in no_suit_players:
                     self.pawns[pawn].is_missing(suit)
+        self.cards_played += table.cards
 
     def is_missing_Suit(self, table):
         other_pawns = [p for p in self.pawns if p.id != self.id]
@@ -424,7 +425,7 @@ class Player:
         :param table: Table()
         :return: Card()
         """
-        if Player.is_missing_Suit(self, table) >= risk_tolerance:
+        if Player.is_missing_Suit(self, table) >= self.risk_tolerance:
             return Player.avoid_taking(self, table)
         else:
             return Player.safest_take(self, table)

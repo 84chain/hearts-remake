@@ -5,6 +5,7 @@ class RandomArenaPlayer(ArenaPlayer):
     def __init__(self, game):
         self.game = game
         ArenaPlayer.__init__(self, game)
+        self.name = "r"
 
     def play(self, state):
         legal_moves = self.game.get_valid_moves(state)
@@ -14,5 +15,5 @@ class RandomArenaPlayer(ArenaPlayer):
                 valid_moves.append(i)
         return random.choice(valid_moves)
 
-    def update(self, state):
+    def update_round(self, state):
         pass

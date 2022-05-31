@@ -1,6 +1,7 @@
 from player.players.aggressive_player import Player
 from setup.setup import *
 from setup.card import Card
+from setup.table import Table
 
 class StatePlayer(Player):
     def play(self, state):
@@ -37,7 +38,7 @@ class StatePlayer(Player):
 
         return card.to_int()
 
-    def update(self, state):
+    def update_round(self, state):
         table = Table()
         for i in range(4):
             table.card_played(Card(state.round_played[i]), self.pawns[i])

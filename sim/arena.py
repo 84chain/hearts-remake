@@ -53,10 +53,10 @@ class Arena:
                     assert valid_moves[action] > 0
 
                 state = self.game.get_next_state(state, action)
-            self.player1.update(state)
-            self.player2.update(state)
-            self.player3.update(state)
-            self.player4.update(state)
+            self.player1.update_round(state)
+            self.player2.update_round(state)
+            self.player3.update_round(state)
+            self.player4.update_round(state)
             if verbose:
                 print("\n")
 

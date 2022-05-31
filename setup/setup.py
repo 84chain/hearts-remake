@@ -1,23 +1,9 @@
 # Contains helpers and classes for other classes
+from setup.controls import *
 from setup.table import *
 from setup.hand import *
 import statistics
 from math import comb
-
-# Weights for passing
-diamond_weights = [0, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, -0.5, -1, -1.5, -2]
-hearts_weights = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1.5, 2, 2.5, 3]
-
-# Preference for which suits to pass away, e is the rating bonus (additive) for getting rid of a suit
-suits_preference = {
-    "c": 1,
-    "d": 1,
-    "s": 1,
-    "h": 1,
-    "e": 10
-}
-
-risk_tolerance = 0.001 # risk_tolerance is from [0, 1], 0 meaning always avoiding taking, and 1 always taking.
 
 # HELPERS
 def c_comb(n, k):
@@ -254,12 +240,6 @@ def card_index(card, list_card):
     """
     return [i.to_int() for i in list_card].index(card.to_int())
 
-def card_list_to_flags(list_card):
-    flags = Hand(list_card).to_int_list()
-    empty_hand = [0] * 52
-    for i in flags:
-        empty_hand[i] = 1
-    return empty_hand
 
 
 def player_order(player_position):
@@ -291,12 +271,7 @@ def guaranteed_takes(hand, cards_played):
     :param cards_played: list(Card)
     :return: dict
     """
-    takes = {
-        "c": 0,
-        "d": 0,
-        "s": 0,
-        "h": 0
-    }
+    takes = 0
     int_hand = hand.to_int_list()
     int_cards_played = [c.to_int() for c in cards_played]
     cards_left = [c for c in cards_played if c not in (int_hand + int_cards_played)]
@@ -307,19 +282,19 @@ def guaranteed_takes(hand, cards_played):
     if hand.clubs:
         for card in hand.clubs:
             if card.to_int() > clubs_left[-1]:
-                takes['c'] += 1
+                takes += 1
     if hand.diamonds:
         for card in hand.diamonds:
             if card.to_int() > diamonds_left[-1]:
-                takes['d'] += 1
+                takes += 1
     if hand.spades:
         for card in hand.spades:
             if card.to_int() > spades_left[-1]:
-                takes['s'] += 1
+                takes += 1
     if hand.hearts:
         for card in hand.hearts:
             if card.to_int() > hearts_left[-1]:
-                takes['h'] += 1
+                takes += 1
     return takes
 
 

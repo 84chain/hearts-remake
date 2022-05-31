@@ -6,7 +6,10 @@ from setup.card import Card
 class ArenaPlayer(Player):
     def __init__(self, game):
         self.game = game
-        Player.__init__(self, 0, "")
+        Player.__init__(self, 0, "a")
+
+    def set_tolerance(self, tolerance):
+        self.risk_tolerance = tolerance
 
     def reset_player(self):
         self.card = -1
@@ -51,7 +54,7 @@ class ArenaPlayer(Player):
 
         return card.to_int()
 
-    def update(self, state):
+    def update_round(self, state):
         table = Table()
         for i in range(4):
             table.card_played(Card(state.round_played[i]), self.pawns[i])
@@ -67,3 +70,4 @@ class ArenaPlayer(Player):
             if no_suit_players:
                 for pawn in no_suit_players:
                     self.pawns[pawn].is_missing(suit)
+        self.cards_played += table.cards

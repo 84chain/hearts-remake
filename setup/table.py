@@ -9,6 +9,7 @@ class Table:
         self.cards = []
         self.players = []
         self.player_ids = []
+        self.table = []
         self.length = 0
         self.suit = ""
         self.points = sum([i.points for i in self.cards])
@@ -23,6 +24,7 @@ class Table:
         """
         self.cards.append(card)
         self.players.append(player)
+        self.table.append({"player": player, "card": card})
         self.player_ids.append(player.id)
         if len(self.cards) == 1:
             self.suit = card.suit
