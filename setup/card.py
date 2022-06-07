@@ -1,5 +1,6 @@
 str_values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "j", "q", "k", "a"]
 
+
 class Card:
     def __init__(self, card_info):
         """
@@ -68,9 +69,9 @@ class Card:
         :return: str
         """
         suit_dict = {"c": "Clubs",
-                    "d": "Diamonds",
-                    "s": "Spades",
-                    "h": "Hearts"}
+                     "d": "Diamonds",
+                     "s": "Spades",
+                     "h": "Hearts"}
         return f"{self.str} of {suit_dict[self.suit]}"
 
     def to_short_string(self):

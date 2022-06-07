@@ -2,7 +2,7 @@ from player.templates.pawn import *
 from setup.setup import *
 from setup.suit import *
 from setup.table import *
-
+from setup.controls import *
 
 class Player:
     def __init__(self, id, name):

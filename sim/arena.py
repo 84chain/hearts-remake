@@ -43,7 +43,8 @@ class Arena:
         for round_num in range(13):
             for turn in range(4):
                 if verbose:
-                    print("Round ", str(round_num+1), ", Turn ", str(turn+1), ", Player ", str(state.current_player+1))
+                    print("Round ", str(round_num + 1), ", Turn ", str(turn + 1), ", Player ",
+                          str(state.current_player + 1))
 
                 # action = players[state.current_player](state)
                 action = players[state.current_player].play(state)  # TEMPORARY

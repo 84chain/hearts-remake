@@ -1,7 +1,8 @@
-from player.templates.pawn import *
 from player.players.aggressive_player import Player
-from setup.setup import *
+from player.templates.pawn import *
 from setup.card import Card
+from setup.setup import *
+
 
 class ArenaPlayer(Player):
     def __init__(self, game, id):

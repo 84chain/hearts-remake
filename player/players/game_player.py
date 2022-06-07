@@ -1,6 +1,11 @@
 from player.templates.player import *
 
+
 class GamePlayer(Player):
+    """
+    Class used to play against the AI in bot.py
+    """
+
     def pass_cards(self, cards):
         remaining_hand = [c for c in self.list_hand if c.to_int() not in [i.to_int() for i in cards]]
         self.hand = Hand(remaining_hand)
@@ -16,7 +21,6 @@ class GamePlayer(Player):
             self.card = card
             self.cards_played.append(card)
             self.self_cards.append(card)
-
 
             if card.suit == "c":
                 c_temp = [club for club in self.hand.clubs if club.value != card.value]

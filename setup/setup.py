@@ -1,9 +1,10 @@
 # Contains helpers and classes for other classes
-from setup.controls import *
-from setup.table import *
-from setup.hand import *
 import statistics
 from math import comb
+
+from setup.hand import *
+from setup.table import *
+
 
 # HELPERS
 def c_comb(n, k):
@@ -84,7 +85,7 @@ def jack_highest(cards_played, hand):
     """
     p_hand = Hand(cards_played)
     suit_cards = [val for val in [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14] if
-                 val not in [c.value for c in p_hand.diamonds] and val not in [c.value for c in hand.diamonds]]
+                  val not in [c.value for c in p_hand.diamonds] and val not in [c.value for c in hand.diamonds]]
     if len(suit_cards) == 0:
         return False
     return suit_cards[-1] == 11
@@ -188,6 +189,7 @@ def choose_pass(hand):
     """
     return [Card(c) for c in generate_passes(hand.to_list())[0]["pass"]]
 
+
 def choose_shoot_pass(hand):
     """
     Chooses pass for shooting the moon
@@ -197,8 +199,6 @@ def choose_shoot_pass(hand):
     possible_pass = possible_takes(hand, [])
     sorted_pass = sorted([Card(i) for i in possible_pass], key=lambda x: x.value)
     return sorted_pass[:3]
-
-
 
 
 def rate_remaining_hand(h):
@@ -290,7 +290,6 @@ def card_index(card, list_card):
     return [i.to_int() for i in list_card].index(card.to_int())
 
 
-
 def player_order(player_position):
     """
     Returns order of players from player's position
@@ -367,6 +366,7 @@ def num_guaranteed_takes(hand, cards_played):
     :return: int
     """
     return len(guaranteed_takes(hand, cards_played))
+
 
 def contains_suit(list_card, suit):
     """
@@ -520,6 +520,7 @@ def order_pools(pawns, cards_played, own_hand):
     return {"players": ordered_players,
             "case": case}
 
+
 def calculate_combinations(case_and_players):
     case = case_and_players["case"]
     players = [p[-1] for p in case_and_players["players"]]
@@ -528,19 +529,21 @@ def calculate_combinations(case_and_players):
     r = players[-1]
     combinations = 0
     if case == 1:
-        combinations = c_comb(l["size"], l["hand"]) * c_comb( u["size"] - l["hand"], u["hand"])
+        combinations = c_comb(l["size"], l["hand"]) * c_comb(u["size"] - l["hand"], u["hand"])
     elif case == 2:
         u_hand_reduced = u["hand"] - not_in(u, intersection(u, r))["size"]
         combinations = c_comb(l["size"], l["hand"]) * c_comb(intersection(u, r)["size"], u_hand_reduced)
     elif case == 3:
         l_not_in_l_r = l["hand"] - not_in(l, intersection(l, r))["size"]
         for i in range(l["hand"]):
-            combinations += c_comb(intersection(l, r)["size"], i) * c_comb(l_not_in_l_r, l["hand"] - i) * c_comb(r["size"] - i, r["hand"])
+            combinations += c_comb(intersection(l, r)["size"], i) * c_comb(l_not_in_l_r, l["hand"] - i) * c_comb(
+                r["size"] - i, r["hand"])
     elif case == 4:
         r_hand_reduced = r["hand"] - not_in(r, intersection(r, u))["size"]
         l_not_in_l_r = l["hand"] - not_in(l, intersection(l, r))["size"]
         for i in range(l["hand"]):
-            combinations += c_comb(intersection(l, r)["size"], i) * c_comb(l_not_in_l_r, l["hand"] - i) * c_comb(intersection(r, u)["size"] - i, r_hand_reduced)
+            combinations += c_comb(intersection(l, r)["size"], i) * c_comb(l_not_in_l_r, l["hand"] - i) * c_comb(
+                intersection(r, u)["size"] - i, r_hand_reduced)
     elif case == 5:
         l_u_r = intersection(intersection(l, u), r)
         l_u_not_in_l_u_r = not_in(intersection(l, u), l_u_r)["size"]

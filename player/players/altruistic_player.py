@@ -1,5 +1,6 @@
 from player.templates.player import *
 
+
 class AltruisticPlayer(Player):
     """
     Type of Player that is altruistic towards all players
@@ -38,7 +39,6 @@ class AltruisticPlayer(Player):
         self.card = card
         self.cards_played.append(card)
         self.self_cards.append(card)
-
 
         if card.suit == "c":
             c_temp = [club for club in self.hand.clubs if club.value != card.value]

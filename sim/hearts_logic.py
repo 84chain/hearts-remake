@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class State:
     THREE_OF_CLUBS = 2  # bitmask for three of clubs
 
@@ -64,11 +65,11 @@ class State:
             # dude just trust me
             if card // 13 == 3:
                 self.point_cards[self.current_player] |= 1 << (card - 39)
-            elif card == 8: # 10 of clubs (0 * 13 + 10 - 2)
+            elif card == 8:  # 10 of clubs (0 * 13 + 10 - 2)
                 self.point_cards[self.current_player] |= 1 << 13
-            elif card == 22: # J of diamonds (1 * 13 + 11 - 2)
+            elif card == 22:  # J of diamonds (1 * 13 + 11 - 2)
                 self.point_cards[self.current_player] |= 1 << 14
-            elif card == 36: # Q of spades (2 * 13 + 12 - 2)
+            elif card == 36:  # Q of spades (2 * 13 + 12 - 2)
                 self.point_cards[self.current_player] |= 1 << 15
 
     def count_points(self):

@@ -1,8 +1,8 @@
 from player.players.cheater import Cheater
 from player.templates.arena_player import ArenaPlayer
-from setup.card import Card
-from setup.setup import *
 from setup.hand import Hand
+from setup.setup import *
+
 
 class ArenaCheater(Cheater, ArenaPlayer):
     def __init__(self, game, id):

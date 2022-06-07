@@ -1,7 +1,10 @@
 from __future__ import print_function
-from sim.hearts_logic import State
-import numpy as np
+
 import random
+
+import numpy as np
+
+from sim.hearts_logic import State
 
 
 class HeartsGame(object):
@@ -17,7 +20,7 @@ class HeartsGame(object):
         for i in range(4):
             mask = 0
             for j in range(13):
-                mask |= 1 << cards[13*i + j]
+                mask |= 1 << cards[13 * i + j]
             state.hands[i] = mask
 
     def get_next_state(self, state, action):

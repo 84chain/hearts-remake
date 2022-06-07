@@ -55,7 +55,7 @@ class AggressivePlayer(Player):
             return moves[0]
         else:
             if AggressivePlayer.has_suit(self, table.first_card):
-                #if not self.pawns[1].has_suit(table.suit) or not self.pawns[2].has_suit(table.suit):
+                # if not self.pawns[1].has_suit(table.suit) or not self.pawns[2].has_suit(table.suit):
                 if table.suit == "d":
                     if played(d_jack, self.cards_played):
                         return AggressivePlayer.avoid_taking(self, table)
@@ -67,11 +67,11 @@ class AggressivePlayer(Player):
                                 return AggressivePlayer.avoid_taking(self, table)
                         else:
                             diamonds_left = [d for d in all_diamonds if d.value not in
-                                            [i.value for i in self.hand.diamonds] and d.value not in [k.value for k
-                                                                                                      in
-                                                                                                      Hand(
-                                                                                                          self.cards_played).diamonds]
-                                            and d.value not in [j.value for j in table.cards if j.suit == "d"]]
+                                             [i.value for i in self.hand.diamonds] and d.value not in [k.value for k
+                                                                                                       in
+                                                                                                       Hand(
+                                                                                                           self.cards_played).diamonds]
+                                             and d.value not in [j.value for j in table.cards if j.suit == "d"]]
                             if can_block(self.hand):
                                 if table.points <= 100 and len(diamonds_left) <= (3 - table.length):
                                     return AggressivePlayer.block_j(self)
@@ -98,7 +98,7 @@ class AggressivePlayer(Player):
             return moves[0]
         else:
             if AggressivePlayer.has_suit(self, table.first_card):
-                #if not self.pawns[1].has_suit(table.suit):
+                # if not self.pawns[1].has_suit(table.suit):
                 if table.suit == "d":
                     if played(d_jack, self.cards_played):
                         return AggressivePlayer.avoid_taking(self, table)
@@ -110,11 +110,11 @@ class AggressivePlayer(Player):
                                 return AggressivePlayer.avoid_taking(self, table)
                         else:
                             diamonds_left = [d for d in all_diamonds if d.value not in
-                                            [i.value for i in self.hand.diamonds] and d.value not in [k.value for k
-                                                                                                      in
-                                                                                                      Hand(
-                                                                                                          self.cards_played).diamonds]
-                                            and d.value not in [j.value for j in table.cards if j.suit == "d"]]
+                                             [i.value for i in self.hand.diamonds] and d.value not in [k.value for k
+                                                                                                       in
+                                                                                                       Hand(
+                                                                                                           self.cards_played).diamonds]
+                                             and d.value not in [j.value for j in table.cards if j.suit == "d"]]
                             if can_block(self.hand):
                                 if table.points <= 100 and len(diamonds_left) <= (3 - table.length):
                                     return AggressivePlayer.block_j(self)
@@ -142,7 +142,9 @@ class AggressivePlayer(Player):
         else:
             if AggressivePlayer.has_suit(self, table.first_card):
                 point_threshold = 100
-                return AggressivePlayer.avoid_taking(self, table) if table.points > point_threshold else AggressivePlayer.safest_take(self, table)
+                return AggressivePlayer.avoid_taking(self,
+                                                     table) if table.points > point_threshold else AggressivePlayer.safest_take(
+                    self, table)
             else:
                 return AggressivePlayer.give_l(self)
 
@@ -178,7 +180,6 @@ class AggressivePlayer(Player):
                     return self.possible_takes[-1]
                 else:
                     return sorted(self.hand.to_list(), key=lambda x: x.value)[-1]
-
 
     def shoot_2nd_or_3rd(self, table):
         """
@@ -269,7 +270,6 @@ class AggressivePlayer(Player):
         self.card = card
         self.cards_played.append(card)
         self.self_cards.append(card)
-
 
         if card.suit == "c":
             c_temp = [club for club in self.hand.clubs if club.value != card.value]

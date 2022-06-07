@@ -1,5 +1,5 @@
-from setup.setup import *
 from setup.card import *
+
 
 class Table:
     def __init__(self):
@@ -13,7 +13,6 @@ class Table:
         self.length = 0
         self.suit = ""
         self.points = sum([i.points for i in self.cards])
-
 
     def card_played(self, card, player):
         """

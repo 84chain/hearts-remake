@@ -1,5 +1,7 @@
 import random
+
 from player.templates.arena_player import ArenaPlayer
+
 
 class RandomArenaPlayer(ArenaPlayer):
     def __init__(self, game, id):

@@ -1,7 +1,8 @@
 from player.players.aggressive_player import Player
-from setup.setup import *
 from setup.card import Card
+from setup.setup import *
 from setup.table import Table
+
 
 class StatePlayer(Player):
     def play(self, state):

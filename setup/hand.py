@@ -1,5 +1,6 @@
 from setup.card import Card
 
+
 class Hand:
     def __init__(self, list_card):
         """

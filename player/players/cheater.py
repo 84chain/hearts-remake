@@ -1,8 +1,11 @@
-from player.templates.pawn import *
 from player.players.aggressive_player import AggressivePlayer
-from setup.setup import *
+
 
 class Cheater(AggressivePlayer):
+    """
+    Cheater knows all Pawn hands at the start of the game
+    """
+
     def cheat(self, hand2, hand3, hand4):
         self.pawns[1].deal_hand(hand2)
         self.pawns[2].deal_hand(hand3)

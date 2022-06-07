@@ -1,7 +1,8 @@
 # Pawns as simplified opponents for Player to keep track of
 
-from setup.setup import *
 from setup.hand import Hand
+from setup.setup import *
+
 
 class Pawn:
     def __init__(self, id):

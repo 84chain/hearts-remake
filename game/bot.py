@@ -362,5 +362,4 @@ async def hand(ctx):
         e.set_image(url="attachment://image.png")
         await ctx.send(file=discord.File(fp=image_binary, filename='image.png'), embed=e)
 
-
 # bot.run(token)
