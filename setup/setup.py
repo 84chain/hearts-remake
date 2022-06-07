@@ -143,13 +143,62 @@ def no_suits(table, card):
     return ids
 
 
+def possible_takes(hand, cards_played):
+    """
+    Finds possible takes in hand
+    :param hand: Hand()
+    :param cards_played: list(Card)
+    :return: list(Card)
+    """
+    int_hand = [c.to_int() for c in hand.to_list()]
+    cards_left = [c for c in all_int_cards if c not in (int_hand + Hand(cards_played).to_int_list())]
+    clubs_left = [i for i in cards_left if i < 13]
+    diamonds_left = [i for i in cards_left if i >= 13 and i < 26]
+    spades_left = [i for i in cards_left if i >= 26 and i < 39]
+    hearts_left = [i for i in cards_left if i >= 39]
+    takes = []
+    if hand.clubs:
+        if clubs_left:
+            for card in hand.clubs:
+                if card.to_int() < clubs_left[-1]:
+                    takes.append(card)
+    if hand.diamonds:
+        if diamonds_left:
+            for card in hand.diamonds:
+                if card.to_int() < diamonds_left[-1]:
+                    takes.append(card)
+    if hand.spades:
+        if spades_left:
+            for card in hand.spades:
+                if card.to_int() < spades_left[-1]:
+                    takes.append(card)
+    if hand.hearts:
+        if hearts_left:
+            for card in hand.hearts:
+                if card.to_int() < hearts_left[-1]:
+                    takes.append(card)
+    return takes
+
+
 def choose_pass(hand):
     """
     Chooses the highest rated pass out of all possible passes
     :param hand: Hand()
     :return: list(Card) <- len(list(Card)) always 3
     """
-    return [Card(c) for c in generate_passes(hand)[0]["pass"]]
+    return [Card(c) for c in generate_passes(hand.to_list())[0]["pass"]]
+
+def choose_shoot_pass(hand):
+    """
+    Chooses pass for shooting the moon
+    :param hand: Hand()
+    :return: list(Card)
+    """
+    possible_pass = possible_takes(hand, [])
+    sorted_pass = sorted([Card(i) for i in possible_pass], key=lambda x: x.value)
+    return sorted_pass[:3]
+
+
 
 
 def rate_remaining_hand(h):
@@ -266,37 +315,58 @@ def has_shot(cards_took):
 
 def guaranteed_takes(hand, cards_played):
     """
-    Finds number of rounds that can player can take for sure
+    Finds guaranteed takes in hand
     :param hand: Hand()
     :param cards_played: list(Card)
-    :return: dict
+    :return: list(Card)
     """
-    takes = 0
+    takes = []
     int_hand = hand.to_int_list()
     int_cards_played = [c.to_int() for c in cards_played]
-    cards_left = [c for c in cards_played if c not in (int_hand + int_cards_played)]
+    cards_left = [c for c in all_int_cards if c not in (int_hand + int_cards_played)]
     clubs_left = [i for i in cards_left if i < 13]
-    diamonds_left = [i for i in cards_left if 13 >= i < 26]
-    spades_left = [i for i in cards_left if 26 >= i < 39]
-    hearts_left = [i for i in cards_left if 39 >= i < 52]
+    diamonds_left = [i for i in cards_left if i >= 13 and i < 26]
+    spades_left = [i for i in cards_left if i >= 26 and i < 39]
+    hearts_left = [i for i in cards_left if i >= 39]
     if hand.clubs:
-        for card in hand.clubs:
-            if card.to_int() > clubs_left[-1]:
-                takes += 1
+        if clubs_left:
+            for card in hand.clubs:
+                if card.to_int() > clubs_left[-1]:
+                    takes.append(card)
+        else:
+            takes += hand.clubs
     if hand.diamonds:
-        for card in hand.diamonds:
-            if card.to_int() > diamonds_left[-1]:
-                takes += 1
+        if diamonds_left:
+            for card in hand.diamonds:
+                if card.to_int() > diamonds_left[-1]:
+                    takes.append(card)
+        else:
+            takes += hand.diamonds
     if hand.spades:
-        for card in hand.spades:
-            if card.to_int() > spades_left[-1]:
-                takes += 1
+        if spades_left:
+            for card in hand.spades:
+                if card.to_int() > spades_left[-1]:
+                    takes.append(card)
+        else:
+            takes += hand.spades
     if hand.hearts:
-        for card in hand.hearts:
-            if card.to_int() > hearts_left[-1]:
-                takes += 1
+        if hearts_left:
+            for card in hand.hearts:
+                if card.to_int() > hearts_left[-1]:
+                    takes.append(card)
+        else:
+            takes += hand.hearts
     return takes
 
+
+def num_guaranteed_takes(hand, cards_played):
+    """
+    Finds number of guaranteed takes in hand
+    :param hand: Hand()
+    :param cards_played: list(Card)
+    :return: int
+    """
+    return len(guaranteed_takes(hand, cards_played))
 
 def contains_suit(list_card, suit):
     """

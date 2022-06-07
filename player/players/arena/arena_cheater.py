@@ -5,10 +5,10 @@ from setup.setup import *
 from setup.hand import Hand
 
 class ArenaCheater(Cheater, ArenaPlayer):
-    def __init__(self, game):
+    def __init__(self, game, id):
         self.game = game
-        Cheater.__init__(self, 0, "")
-        ArenaPlayer.__init__(self, game)
+        Cheater.__init__(self, id, "c")
+        ArenaPlayer.__init__(self, game, id)
 
     def play(self, state):
         self.cheat(state.hands[1], state.hands[2], state.hands[3])

@@ -22,7 +22,7 @@ class Game:
 
         self.vector = []
 
-        self.pass_direction = pass_direction # 1, -1, 2
+        self.pass_direction = pass_direction  # 1, -1, 2
 
         hands = [self.deck[:13], self.deck[13:26], self.deck[26:39], self.deck[39:]]
         self.player_0 = AggressivePlayer(0, 0)
@@ -61,28 +61,6 @@ class Game:
             self.player_2.receive_pass(p_3_pass)
             self.player_3.receive_pass(p_0_pass)
 
-    def reset(self):
-        self.deck = [Card(suit + value) for suit in "cdsh" for value in
-                     [str(n) for n in range(2, 11)] + ["j", "q", "k", "a"]]
-        random.shuffle(self.deck)
-
-        self.pass_direction = -1  # 1, -1, 2
-
-        hands = [self.deck[:13], self.deck[13:26], self.deck[26:39], self.deck[39:]]
-        self.player_0 = AggressivePlayer(0, 0)
-        self.player_1 = AggressivePlayer(1, 1)
-        self.player_2 = AggressivePlayer(2, 2)
-        self.player_3 = AggressivePlayer(3, 3)
-        self.players = [self.player_0, self.player_1, self.player_2, self.player_3]
-        self.pass_data = []
-
-        for i in range(4):
-            self.players[i].deal_hand(hands[i])
-
-        Game.passCards(self)
-
-
-
     def play(self):
         # ROUND 1
         player_with_3 = [player for player in self.players if in_hand(club_3, player.hand)][0].id
@@ -97,7 +75,6 @@ class Game:
         card_list = []
         for card in first_table.cards:
             card_list.append(card.to_string())
-
 
         for p in self.players:
             p.update_round(first_table)
@@ -122,9 +99,9 @@ class Game:
         for p in self.players:
             p.count_points()
             pointdata.append({"Player": p.id,
-                                   "Points": p.points})
+                              "Points": p.points})
 
         # reset
-        Game.reset(self)
+        # Game.reset(self)
 
         return pointdata

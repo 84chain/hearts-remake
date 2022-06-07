@@ -11,11 +11,14 @@ class Pawn:
         """
         self.id = id
         self.points = 0
+        self.round = 0
+        self.card = null_card
         self.has_clubs = True
         self.has_diamonds = True
         self.has_spades = True
         self.has_hearts = True
         self.cards_played = []
+        self.cards_took = []
         self.cards_left = 13
         self.hand = Hand([])
 
@@ -58,6 +61,15 @@ class Pawn:
         self.hand = Hand(list_card)
         self.cards_played = Hand(list_card).to_list()
 
+    def can_shoot(self):
+        """
+        Whether Pawn can shoot or not
+        :return: bool
+        """
+        hearts_played = [i.value for i in self.cards_played if i.suit == "h"]
+        hearts_took = [i.value for i in self.cards_took if i.suit == "h"]
+        return len(list(set(hearts_took + hearts_played))) == len(hearts_took)
+
     def play_card(self, card):
         """
         Updates Pawn as card is played from Pawn
@@ -82,9 +94,20 @@ class Pawn:
             hand_list = self.hand.clubs + self.hand.diamonds + self.hand.spades + h_temp
 
         self.cards_left -= 1
+        self.card = card
 
         Pawn.deal_hand(self, hand_list)
 
+    def update_round(self, table):
+        """
+        Updates Player after a round
+        :param table: Table()
+        :return: None
+        """
+        self.round += 1
+        if is_taking(table, self.card):
+            self.cards_took += table.cards
+        self.cards_played += table.cards
 
     def create_clone(self, suit):
         """

@@ -37,6 +37,9 @@ class Arena:
         players = [self.player1, self.player2, self.player3, self.player4]
         state = self.game.get_init_state()
 
+        has_shooter = 0
+        has_shot = 0
+
         for round_num in range(13):
             for turn in range(4):
                 if verbose:
@@ -53,6 +56,8 @@ class Arena:
                     assert valid_moves[action] > 0
 
                 state = self.game.get_next_state(state, action)
+            if True in [i.is_shooting for i in players]:
+                has_shooter = 1
             self.player1.update_round(state)
             self.player2.update_round(state)
             self.player3.update_round(state)
@@ -60,13 +65,22 @@ class Arena:
             if verbose:
                 print("\n")
 
-        final_points = self.game.get_score(state)
+        final_points, shoot_results = self.game.get_score(state)
+        if 1 in shoot_results:
+            if players[shoot_results.index(1)].name != "r":
+                has_shot = 1
+
         if verbose:
             print("Game over! Result ", final_points)
             total = 0
             for val in state.point_cards:
                 total += val
-        return final_points
+
+        return {
+            "points": final_points,
+            "shooter": has_shooter,
+            "shot": has_shot
+        }
 
     def play_games(self, num, verbose=False):
         """
@@ -80,13 +94,31 @@ class Arena:
         points = [[], [], [], []]
         total_rankings = np.zeros([4, 4])
 
+        total_ai_points = np.zeros(4)
+        ai_points = [[], [], [], []]
+
+        ai_players = [i.id for i in [self.player1, self.player2, self.player3, self.player4] if i.name != "r"]
+        shoot_attempts = []
+        successful_shoot = []
+
         for _ in tqdm(range(num), desc="Arena.playGames"):
             game_result = self.play_game(verbose=verbose)
-            rankings = [sorted(game_result).index(x) for x in game_result]
+
+            game_points = game_result["points"]
+            shoot_attempt = game_result["shooter"]
+            shoot_result = game_result["shot"]
+
+            rankings = [sorted(game_points).index(x) for x in game_points]
+            shoot_attempts.append(shoot_attempt)
+            successful_shoot.append(shoot_result)
 
             for i in range(4):
-                total_points[i] += game_result[i]
-                points[i].append(game_result[i])
+                if i in ai_players:
+                    total_ai_points[i] += game_points[i]
+                    ai_points[i].append(game_points[i])
+
+                total_points[i] += game_points[i]
+                points[i].append(game_points[i])
                 total_rankings[i][rankings[i]] += 1
 
             self.player1.reset_player()
@@ -94,4 +126,12 @@ class Arena:
             self.player3.reset_player()
             self.player4.reset_player()
 
-        return total_points, total_rankings, points
+        return {
+            "total_points": total_points,
+            "total_ai_points": total_ai_points,
+            "total_rankings": total_rankings,
+            "points": points,
+            "ai_points": ai_points,
+            "shoot_attempts": shoot_attempts,
+            "successful_shoot": successful_shoot
+        }

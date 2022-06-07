@@ -1,22 +1,29 @@
 from player.templates.pawn import *
 from setup.setup import *
-from setup.hand import *
 from setup.suit import *
 from setup.table import *
+
+
 class Player:
     def __init__(self, id, name):
         """
-        Template for AggressivePlayer and AltruisticPlayer
+        Base template for Player classes
         :param id: int
         :param name: str
         """
         self.id = id
         self.name = name
         self.points = 0
+        self.round = 0
         self.cards_took = []
         self.cards_played = []
         self.self_cards = []
         self.has_10 = False
+        self.has_shot = False
+        self.is_shooting = False
+        self.shoot_blocked = False
+        self.possible_takes = []
+        self.guaranteed_takes = []
         self.pawns = [Pawn(i) for i in [0, 1, 2, 3]]
         self.risk_tolerance = risk_tolerance
 
@@ -34,7 +41,7 @@ class Player:
         Chooses pass and removes pass from hand, returns chosen pass in a list
         :return: list(Card)
         """
-        cards = choose_pass(self.hand.to_list())
+        cards = choose_pass(self.hand)
         remaining_hand = [c for c in self.list_hand if c.to_int() not in [i.to_int() for i in cards]]
         self.hand = Hand(remaining_hand)
         return cards
@@ -60,7 +67,10 @@ class Player:
             else:
                 remaining_takes = self.cards_took
             for card in remaining_takes:
-                self.points -= card.points
+                if card.is_eq(club_10):
+                    pass
+                else:
+                    self.points -= card.points
         else:
             for card in self.cards_took:
                 self.points += card.points
@@ -82,6 +92,14 @@ class Player:
         points = Player.count_points(self)
         self.points = 0
         return points
+
+    def set_tolerance(self, tolerance):
+        """
+        Sets risk_tolerance to tolerance
+        :param tolerance: float
+        :return: None
+        """
+        self.risk_tolerance = tolerance
 
     def legal_moves(self, first_card):
         """
@@ -121,6 +139,7 @@ class Player:
         :param table: Table()
         :return: None
         """
+        self.round += 1
         if is_taking(table, self.card):
             self.cards_took += table.cards
         if all_same_suit(table, self.card):
@@ -133,6 +152,8 @@ class Player:
             if no_suit_players:
                 for pawn in no_suit_players:
                     self.pawns[pawn].is_missing(suit)
+        for p in self.pawns:
+            Pawn.update_round(p, table)
         self.cards_played += table.cards
 
     def is_missing_Suit(self, table):
@@ -145,8 +166,6 @@ class Player:
         else:
             chance = target_combinations / total_combinations
         return chance
-
-
 
     def choose_card(self):
         """
@@ -317,7 +336,8 @@ class Player:
                 if table_points < 0:
                     return diamonds.highest
                 else:
-                    return d_jack if in_hand(d_jack, self.hand) and highest.value < 11 else Player.avoid_taking(self, table)
+                    return d_jack if in_hand(d_jack, self.hand) and highest.value < 11 else Player.avoid_taking(self,
+                                                                                                                table)
 
         elif table.suit == "s":
             spades = Suit(self.hand.spades)
@@ -355,8 +375,8 @@ class Player:
             suit = card.suit
             if suit == "c":
                 clubs_left = [c for c in all_clubs if c.value not in
-                             [i.value for i in clubs] and c.value not in [k.value for k in
-                                                                          Hand(self.cards_played).clubs]]
+                              [i.value for i in clubs] and c.value not in [k.value for k in
+                                                                           Hand(self.cards_played).clubs]]
                 len_clubs = len(clubs_left)
                 if len_clubs:
                     clubs_left.append(card)
@@ -368,8 +388,8 @@ class Player:
                     card_list.append([card, 99])
             elif suit == "d":
                 diamonds_left = [d for d in all_diamonds if d.value not in
-                                [i.value for i in diamonds] and d.value not in [k.value for k in
-                                                                                Hand(self.cards_played).diamonds]]
+                                 [i.value for i in diamonds] and d.value not in [k.value for k in
+                                                                                 Hand(self.cards_played).diamonds]]
                 len_diamonds = len(diamonds_left)
                 if len_diamonds:
                     diamonds_left.append(card)
@@ -388,8 +408,8 @@ class Player:
                     card_list.append([card, 99])
             elif suit == "s":
                 spades_left = [s for s in all_spades if s.value not in
-                              [i.value for i in spades] and s.value not in [k.value for k in
-                                                                            Hand(self.cards_played).spades]]
+                               [i.value for i in spades] and s.value not in [k.value for k in
+                                                                             Hand(self.cards_played).spades]]
                 len_spades = len(spades_left)
                 if len_spades:
                     spades_left.append(card)
@@ -404,8 +424,8 @@ class Player:
                     card_list.append([card, 99])
             elif suit == "h":
                 hearts_left = [h for h in all_hearts if h.value not in
-                              [i.value for i in hearts] and h.value not in [k.value for k in
-                                                                            Hand(self.cards_played).hearts]]
+                               [i.value for i in hearts] and h.value not in [k.value for k in
+                                                                             Hand(self.cards_played).hearts]]
                 len_hearts = len(hearts_left)
                 if len_hearts:
                     hearts_left.append(card)
@@ -435,18 +455,9 @@ class Player:
         Whether Player can shoot or not
         :return: bool
         """
-        for p in self.pawns:
-            if (p.id != self.id) and contains_suit(p.cards_played, "h"):
-                return False
-        else:
-            return True
-
-    def shoot(self):
-        """
-        Cope
-        :return: copium
-        """
-        pass
+        hearts_played = [i.value for i in self.cards_played if i.suit == "h"]
+        hearts_took = [i.value for i in self.cards_took if i.suit == "h"]
+        return len(list(set(hearts_took + hearts_played))) == len(hearts_took)
 
     def play_first(self):
         """

@@ -73,11 +73,13 @@ class State:
 
     def count_points(self):
         points = np.zeros(4)
+        shot = [0, 0, 0, 0]
         for i in range(4):
             pile = self.point_cards[i]
 
             moon_mask = (1 << 13) - 1
             if pile & moon_mask == moon_mask:  # has shot the moon
+                shot[i] = 1
                 points[i] = -200
                 if (pile >> 15) & 1:  # queen of spades check
                     points[i] -= 100
@@ -103,7 +105,7 @@ class State:
                 points[i] = -50
             elif (pile >> 13) & 1:
                 points[i] *= 2
-        return points
+        return points, shot
 
     @classmethod
     def copy_state(cls, state):

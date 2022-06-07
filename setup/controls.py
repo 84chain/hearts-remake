@@ -12,4 +12,7 @@ suits_preference = {
 }
 
 # risk_tolerance is from [0, 1], 0 meaning always avoiding taking, and 1 always taking.
-risk_tolerance = 0
+risk_tolerance = 1
+
+# minimum_takes is from [0-13], minimum number of guaranteed takes to trigger shooting
+minimum_takes = 10

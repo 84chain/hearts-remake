@@ -12,6 +12,7 @@ class Card:
             self.suit = card_info.suit
             self.value = card_info.value
             self.card_str = card_info.card_str
+            self.str = card_info.str
             self.points = card_info.points
         else:
             try:

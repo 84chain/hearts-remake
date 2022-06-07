@@ -2,9 +2,9 @@ import random
 from player.templates.arena_player import ArenaPlayer
 
 class RandomArenaPlayer(ArenaPlayer):
-    def __init__(self, game):
+    def __init__(self, game, id):
         self.game = game
-        ArenaPlayer.__init__(self, game)
+        ArenaPlayer.__init__(self, game, id)
         self.name = "r"
 
     def play(self, state):
