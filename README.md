@@ -1,7 +1,7 @@
 # hearts-remake
 because we fucked up the first one
 
-this is a version of hearts that differ from traditional hearts rules
+this is a version of hearts that differs from traditional hearts rules
 
 you can find the traditional rules here: https://bicyclecards.com/how-to-play/hearts/
 
