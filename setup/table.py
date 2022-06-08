@@ -1,4 +1,6 @@
+from player.templates.player import *
 from setup.card import *
+from setup.setup import *
 
 
 class Table:
@@ -32,3 +34,15 @@ class Table:
             self.first_card = self.cards[0]
         else:
             self.first_card = null_card
+
+    def current_taker(self):
+        """
+        Returns current taker of the table
+        :return: Player()
+        """
+        if self.players:
+            for i in self.table:
+                if is_taking(self, i["card"]):
+                    return i["player"]
+        else:
+            return null_player

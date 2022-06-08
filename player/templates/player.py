@@ -492,3 +492,6 @@ class Player:
         :return: Card()
         """
         return null_card
+
+# blank Player
+null_player = Player(-1, "null")
