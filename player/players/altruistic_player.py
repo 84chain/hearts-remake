@@ -1,5 +1,6 @@
 from player.templates.player import *
 
+# TODO: feed while teammate is shooting, block opponents from shooting, override pass to be kind to teammate
 
 class AltruisticPlayer(Player):
     """
@@ -84,9 +85,9 @@ class AltruisticPlayer(Player):
                     position = [club.to_int() for club in sorted(clubs_left, key=lambda x: x.value)].index(
                         card.to_int())
                     c_scale = len([c for c in clubs if c.value > 10])
-                    if card.is_eq(club_10) and self.teammate.points <= 0:
+                    if card.is_eq(club_10) and self.teammate.points < 0:
                         card_list.append([card, -1])
-                    elif card.is_eq(club_10) and self.teammate.points > 0:
+                    elif card.is_eq(club_10) and self.teammate.points >= 0:
                         card_list.append([card, 99])
                     else:
                         card_list.append([card, len_clubs - position + c_scale])
@@ -146,6 +147,9 @@ class AltruisticPlayer(Player):
         sorted_list = sorted(card_list, key=lambda x: (x[-1], -x[0].value))
 
         return sorted_list[0][0]
+
+    def feed_shoot(self):
+        pass
 
     def play_second(self, table):
         """
