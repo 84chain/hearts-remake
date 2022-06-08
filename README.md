@@ -23,3 +23,6 @@ Points:
 shooting the moon requires 2, 3, 4 of hearts, but not Q of spades
 
 shooting the moon turns all positive point values negative (full hearts shoot: -200 points, hearts + Q: -300 points, hearts + J: -300 points, all point cards: -800 points)
+
+Known bugs:
+- counting points after shooting the moon is bugged
