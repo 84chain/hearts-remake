@@ -1,7 +1,5 @@
 from player.templates.player import *
 
-# TODO: block opponents from shooting
-
 class AltruisticPlayer(Player):
     """
     Type of Player that is altruistic towards all players
@@ -422,6 +420,7 @@ class AltruisticPlayer(Player):
     def play_card(self, table):
         """
         Plays a card and updates fields
+        Only used to test AltruisticPlayer
         :param table: Table()
         :return: Card()
         """

@@ -1,6 +1,6 @@
 import random
 
-from player.players.aggressive_player import *
+from player.players.teams.aggressive_player import *
 
 
 # HELPERS

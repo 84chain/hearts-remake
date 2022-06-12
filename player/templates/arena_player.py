@@ -1,6 +1,5 @@
-from player.players.aggressive_player import Player
+from player.players.teams.aggressive_player import Player
 from player.templates.pawn import *
-from setup.controls import *
 from setup.setup import *
 
 

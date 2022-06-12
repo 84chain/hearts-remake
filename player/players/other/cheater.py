@@ -1,4 +1,4 @@
-from player.players.aggressive_player import AggressivePlayer
+from player.players.teams.aggressive_player import AggressivePlayer
 
 
 class Cheater(AggressivePlayer):

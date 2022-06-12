@@ -1,5 +1,3 @@
-from player.players.aggressive_player import Player
-from setup.card import Card
 from setup.setup import *
 from setup.table import Table
 

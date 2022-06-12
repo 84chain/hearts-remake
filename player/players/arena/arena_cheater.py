@@ -1,6 +1,5 @@
-from player.players.cheater import Cheater
+from player.players.other.cheater import Cheater
 from player.templates.arena_player import ArenaPlayer
-from setup.hand import Hand
 from setup.setup import *
 
 

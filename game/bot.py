@@ -6,8 +6,8 @@ import discord
 from PIL import Image
 from discord.ext import commands
 
-from player.players.aggressive_player import AggressivePlayer
-from player.players.game_player import GamePlayer
+from player.players.teams.aggressive_player import AggressivePlayer
+from player.players.other.game_player import GamePlayer
 from setup.setup import *
 
 with open("../../hearts_bot/token.txt") as f:
