@@ -11,3 +11,5 @@ class TeamPlayer(AggressivePlayer, AltruisticPlayer):
         AggressivePlayer.__init__(self, id, name)
         AltruisticPlayer.__init__(self, id, name)
 
+
+t = TeamPlayer(0, "t")

@@ -1,6 +1,6 @@
 from player.templates.player import *
 
-# TODO: feed while teammate is shooting, block opponents from shooting, override pass to be kind to teammate
+# TODO: block opponents from shooting
 
 class AltruisticPlayer(Player):
     """
@@ -16,6 +16,10 @@ class AltruisticPlayer(Player):
         self.teammate = teammate
 
     def choose_card(self):
+        """
+        Override for choose_card that priorities suits that teammate does not have
+        :return: Card()
+        """
         clubs = self.hand.clubs
         diamonds = self.hand.diamonds
         spades = self.hand.spades
@@ -62,6 +66,110 @@ class AltruisticPlayer(Player):
             return sorted(missing_suits, key=lambda x: x[-1], reverse=True)[0][0]
         else:
             return Player.choose_card(self)
+
+    def avoid_taking(self, table):
+        """
+        Override for avoid_taking, assuming teammate is taking
+        :param table: Table()
+        :return: Card()
+        """
+        highest = return_highest(table)
+
+        if table.suit == "c":
+            lower_clubs = [c for c in self.hand.clubs if c.value < highest.value]
+            if lower_clubs:
+                clubs = Suit(lower_clubs)
+                if clubs.highest.value == 10:
+                    return clubs.next_highest
+                else:
+                    return clubs.highest
+            else:
+                return AltruisticPlayer.safest_take(self, table)
+
+        elif table.suit == "d":
+            lower_diamonds = [d for d in self.hand.diamonds if d.value < highest.value]
+            if lower_diamonds:
+                diamonds = Suit(lower_diamonds)
+                if highest.value == 14 and in_hand(d_jack, self.hand):
+                    return d_jack
+                else:
+                    if diamonds.highest.value == 11:
+                        return diamonds.next_highest
+                    else:
+                        return diamonds.highest
+            else:
+                return AltruisticPlayer.safest_take(self, table)
+
+        elif table.suit == "s":
+            lower_spades = [s for s in self.hand.spades if s.value < highest.value]
+            if lower_spades:
+                spades = Suit(lower_spades)
+                if spades.highest.value == 12:
+                    return spades.next_highest
+                else:
+                    return spades.highest
+            else:
+                return AltruisticPlayer.safest_take(self, table)
+
+        elif table.suit == "h":
+            lower_hearts = [h for h in self.hand.hearts if h.value < highest.value]
+            if lower_hearts:
+                return lower_hearts[0]
+            else:
+                return AltruisticPlayer.safest_take(self, table)
+
+    def safest_take(self, table):
+        """
+        Override of safest_take that uses AltruisticPlayer.avoid_taking()
+        :param table: Table()
+        :return: Card()
+        """
+        highest = return_highest(table)
+        table_points = table.points
+
+        if table.suit == "c":
+            clubs = Suit(self.hand.clubs)
+            if table_points < 0:
+                return club_10 if highest.value < 10 and in_hand(club_10, self.hand) else clubs.highest
+            else:
+                return clubs.highest
+
+        elif table.suit == "d":
+            diamonds = Suit(self.hand.diamonds)
+            if j_blocked(table):
+                lower_diamonds = [d for d in self.hand.diamonds if d.value < 11]
+                if lower_diamonds:
+                    return lower_diamonds[-1]
+                else:
+                    return [d for d in self.hand.diamonds if d.value > 11][0]
+            else:
+                if table_points < 0:
+                    return diamonds.highest
+                else:
+                    return d_jack if in_hand(d_jack, self.hand) and highest.value < 11 else AltruisticPlayer.avoid_taking(self,
+                                                                                                                table)
+
+        elif table.suit == "s":
+            spades = Suit(self.hand.spades)
+            if spades.highest.value == 12:
+                if spades.next_highest.value == 12:
+                    return self.hand.spades[-2]
+                else:
+                    return spades.next_highest
+            else:
+                return spades.highest
+
+        elif table.suit == "h":
+            hearts = Suit(self.hand.hearts)
+            higher_hearts = hearts.higher_cards(highest)
+            ten_point_hearts = [heart for heart in hearts.cards if heart.points <= 10]
+            if not ten_point_hearts:
+                if higher_hearts:
+                    return higher_hearts[0]
+                else:
+                    return self.hand.hearts[-1]
+            else:
+                return ten_point_hearts[-1]
 
     def give_l(self):
         """
@@ -148,12 +256,51 @@ class AltruisticPlayer(Player):
 
         return sorted_list[0][0]
 
-    def feed_shoot(self):
-        pass
+    def feed_shoot(self, table):
+        """
+        Helps teammate shoot, assumes teammate is taking
+        :return: Card()
+        """
+        highest = return_highest(table)
+        if table.suit == "c":
+            lower_clubs = [c for c in self.hand.clubs if c.value < highest.value]
+            if lower_clubs:
+                clubs = Suit(lower_clubs)
+                if clubs.highest.value == 10:
+                    return clubs.next_highest
+                else:
+                    return clubs.highest
+            else:
+                return AltruisticPlayer.avoid_taking(self, table)
+        elif table.suit == "d":
+            lower_diamonds = [d for d in self.hand.diamonds if d.value < highest.value]
+            if lower_diamonds:
+                if in_hand(d_jack, Hand(lower_diamonds)):
+                    return d_jack
+                else:
+                    return Suit(lower_diamonds).highest
+            else:
+                return AltruisticPlayer.avoid_taking(self, table)
+        elif table.suit == "s":
+            lower_spades = [s for s in self.hand.spades if s.value < highest.value]
+            if lower_spades:
+                spades = Suit(lower_spades)
+                if spades.highest.value == 12:
+                    return spades.next_highest
+                else:
+                    return spades.highest
+            else:
+                return AltruisticPlayer.avoid_taking(self, table)
+        elif table.suit == "h":
+            lower_hearts = [h for h in self.hand.hearts if h.value < highest.value]
+            if lower_hearts:
+                return Suit(lower_hearts).highest
+            else:
+                return AltruisticPlayer.avoid_taking(self, table)
 
     def play_second(self, table):
         """
-        Decides on what card to play when playing 2nd
+        Decides on what card to play when playing 2nd, assumes teammate is taking
         :param table: Table()
         :return: Card()
         """
@@ -165,47 +312,43 @@ class AltruisticPlayer(Player):
             if AltruisticPlayer.has_suit(self, table.first_card):
                 if self.has_10:
                     return AltruisticPlayer.avoid_taking(self, table)
+                elif self.teammate.has_10:
+                    return AltruisticPlayer.safest_take(self, table)
                 else:
-                    if Table.current_taker(table).id == self.teammate.id and self.teammate.has_10:
-                        return AltruisticPlayer.safest_take(self, table)
-                    else:
-                        if table.suit == "d":
-                            if played(d_jack, self.cards_played):
-                                return AltruisticPlayer.avoid_taking(self, table)
+                    if table.suit == "d":
+                        if played(d_jack, self.cards_played):
+                            return AltruisticPlayer.avoid_taking(self, table)
+                        else:
+                            if in_hand(d_jack, self.hand):
+                                if jack_highest(self.cards_played, self.hand):
+                                    return d_jack
+                                else:
+                                    return AltruisticPlayer.avoid_taking(self, table)
                             else:
-                                if in_hand(d_jack, self.hand):
-                                    if jack_highest(self.cards_played, self.hand):
-                                        return d_jack
+                                diamonds_left = [d for d in all_diamonds if d.value not in
+                                                 [i.value for i in self.hand.diamonds] and d.value not in [k.value
+                                                                                                           for k
+                                                                                                           in
+                                                                                                           Hand(
+                                                                                                               self.cards_played).diamonds]
+                                                 and d.value not in [j.value for j in table.cards if j.suit == "d"]]
+                                if can_block(self.hand):
+                                    if table.points <= 100 and len(diamonds_left) <= (3 - table.length):
+                                        return AltruisticPlayer.block_j(self)
                                     else:
                                         return AltruisticPlayer.avoid_taking(self, table)
                                 else:
-                                    diamonds_left = [d for d in all_diamonds if d.value not in
-                                                     [i.value for i in self.hand.diamonds] and d.value not in [k.value
-                                                                                                               for k
-                                                                                                               in
-                                                                                                               Hand(
-                                                                                                                   self.cards_played).diamonds]
-                                                     and d.value not in [j.value for j in table.cards if j.suit == "d"]]
-                                    if can_block(self.hand):
-                                        if table.points <= 100 and len(diamonds_left) <= (3 - table.length):
-                                            return AltruisticPlayer.block_j(self)
-                                        else:
-                                            return AltruisticPlayer.avoid_taking(self, table)
-                                    else:
-                                        return AltruisticPlayer.avoid_taking(self, table)
-                            # else:
-                            #     return AggressivePlayer.avoid_taking(self, table)
-                        else:
-                            return AltruisticPlayer.gamble(self, table)
+                                    return AltruisticPlayer.avoid_taking(self, table)
+                    elif table.suit == "h":
+                        return self.hand.hearts[0]
+                    else:
+                        return AltruisticPlayer.gamble(self, table)
             else:
-                if Table.current_taker(table).id == self.teammate.id:
-                    return AltruisticPlayer.give_l(self)
-                else:
-                    return Player.give_l(self)
+                return AltruisticPlayer.give_l(self)
 
     def play_third(self, table):
         """
-        Decides on what card to play when playing 3rd
+        Decides on what card to play when playing 3rd, assumes teammate is taking
         :param table: Table()
         :return: Card()
         """
@@ -217,47 +360,44 @@ class AltruisticPlayer(Player):
             if AltruisticPlayer.has_suit(self, table.first_card):
                 if self.has_10:
                     return AltruisticPlayer.avoid_taking(self, table)
+                elif self.teammate.has_10:
+                    return AltruisticPlayer.safest_take(self, table)
                 else:
-                    if Table.current_taker(table).id == self.teammate.id and self.teammate.has_10:
-                        return AltruisticPlayer.safest_take(self, table)
-                    else:
-                        if table.suit == "d":
-                            if played(d_jack, self.cards_played):
-                                return AltruisticPlayer.avoid_taking(self, table)
+                    if table.suit == "d":
+                        if played(d_jack, self.cards_played):
+                            return AltruisticPlayer.avoid_taking(self, table)
+                        else:
+                            if in_hand(d_jack, self.hand):
+                                if jack_highest(self.cards_played, self.hand):
+                                    return d_jack
+                                else:
+                                    return AltruisticPlayer.avoid_taking(self, table)
                             else:
-                                if in_hand(d_jack, self.hand):
-                                    if jack_highest(self.cards_played, self.hand):
-                                        return d_jack
+                                diamonds_left = [d for d in all_diamonds if d.value not in
+                                                 [i.value for i in self.hand.diamonds] and d.value not in [k.value
+                                                                                                           for k
+                                                                                                           in
+                                                                                                           Hand(
+                                                                                                               self.cards_played).diamonds]
+                                                 and d.value not in [j.value for j in table.cards if j.suit == "d"]]
+                                if can_block(self.hand):
+                                    if table.points <= 100 and len(diamonds_left) <= (3 - table.length):
+                                        return AltruisticPlayer.block_j(self)
                                     else:
                                         return AltruisticPlayer.avoid_taking(self, table)
                                 else:
-                                    diamonds_left = [d for d in all_diamonds if d.value not in
-                                                     [i.value for i in self.hand.diamonds] and d.value not in [k.value
-                                                                                                               for k
-                                                                                                               in
-                                                                                                               Hand(
-                                                                                                                   self.cards_played).diamonds]
-                                                     and d.value not in [j.value for j in table.cards if j.suit == "d"]]
-                                    if can_block(self.hand):
-                                        if table.points <= 100 and len(diamonds_left) <= (3 - table.length):
-                                            return AltruisticPlayer.block_j(self)
-                                        else:
-                                            return AltruisticPlayer.avoid_taking(self, table)
-                                    else:
-                                        return AltruisticPlayer.avoid_taking(self, table)
-                            # else:
-                            #     return AggressivePlayer.avoid_taking(self, table)
-                        else:
-                            return AltruisticPlayer.gamble(self, table)
+                                    return AltruisticPlayer.avoid_taking(self, table)
+                    elif table.suit == "h":
+                        return self.hand.hearts[0]
+                    else:
+                        return AltruisticPlayer.gamble(self, table)
             else:
-                if Table.current_taker(table).id == self.teammate.id:
-                    return AltruisticPlayer.give_l(self)
-                else:
-                    return Player.give_l(self)
+                return AltruisticPlayer.give_l(self)
+
 
     def play_last(self, table):
         """
-        Decides on what card to play when playing last
+        Decides on what card to play when playing last, assumes teammate is taking
         :param table: Table()
         :return: Card()
         """
@@ -267,21 +407,17 @@ class AltruisticPlayer(Player):
             return moves[0]
         else:
             if AltruisticPlayer.has_suit(self, table.first_card):
-                if Table.current_taker(table).id == self.teammate.id:
-                    if self.teammate.has_10:
-                        return AltruisticPlayer.safest_take(self, table)
-                    elif self.has_10:
-                        return AltruisticPlayer.avoid_taking(self, table)
-                    else:
-                        point_threshold = 100
-                        return AltruisticPlayer.avoid_taking(self,
-                                                             table) if table.points > point_threshold else AltruisticPlayer.safest_take(
-                            self, table)
-            else:
-                if Table.current_taker(table).id == self.teammate.id:
-                    return AltruisticPlayer.give_l(self)
+                if self.teammate.has_10:
+                    return AltruisticPlayer.safest_take(self, table)
+                elif self.has_10:
+                    return AltruisticPlayer.avoid_taking(self, table)
                 else:
-                    return Player.give_l(self)
+                    point_threshold = 100
+                    return AltruisticPlayer.avoid_taking(self,
+                                                         table) if table.points > point_threshold else AltruisticPlayer.safest_take(
+                        self, table)
+            else:
+                return AltruisticPlayer.give_l(self)
 
     def play_card(self, table):
         """

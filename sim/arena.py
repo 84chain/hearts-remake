@@ -24,6 +24,7 @@ class Arena:
         self.player3 = player3
         self.player4 = player4
         self.game = game
+        self.results = list()
 
     def play_game(self, verbose=False):
         """

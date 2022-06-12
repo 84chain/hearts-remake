@@ -130,7 +130,7 @@ def all_same_suit_alt(table, card):
     return suit_list.count(suit_list[0]) == len(suit_list)
 
 
-def no_suits(table, card):
+def no_suits(table):
     """
     Player ids that did not have the correct suit
     :param table: Table()

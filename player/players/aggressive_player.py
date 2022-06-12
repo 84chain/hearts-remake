@@ -303,7 +303,7 @@ class AggressivePlayer(Player):
                 self.pawns[player_ids[i]].play_card(table.cards[i])
         else:
             suit = table.suit
-            no_suit_players = no_suits(table, self.card)
+            no_suit_players = no_suits(table)
             if no_suit_players:
                 for pawn in no_suit_players:
                     self.pawns[pawn].is_missing(suit)
