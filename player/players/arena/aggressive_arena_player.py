@@ -1,9 +1,10 @@
 from player.players.teams.aggressive_player import AggressivePlayer
 from player.templates.arena_player import ArenaPlayer
+from player.players.teams.shoot_player import ShootPlayer
 from setup.setup import *
 
 
-class AggressiveArenaPlayer(ArenaPlayer, AggressivePlayer):
+class AggressiveArenaPlayer(ArenaPlayer, AggressivePlayer, ShootPlayer):
     def __init__(self, game, id):
         self.game = game
         ArenaPlayer.__init__(self, game, id)
@@ -32,11 +33,11 @@ class AggressiveArenaPlayer(ArenaPlayer, AggressivePlayer):
         else:
             if self.is_shooting:
                 if state.turn == 0:
-                    card = AggressivePlayer.shoot_first(self)
+                    card = ShootPlayer.shoot_first(self)
                 elif state.turn == 1 or state.turn == 2:
-                    card = AggressivePlayer.shoot_2nd_or_3rd(self, table)
+                    card = ShootPlayer.shoot_2nd_or_3rd(self, table)
                 elif state.turn == 3:
-                    card = AggressivePlayer.shoot_last(self, table)
+                    card = ShootPlayer.shoot_last(self, table)
             else:
                 if state.turn == 0:
                     card = AggressivePlayer.play_first(self)

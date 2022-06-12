@@ -1,6 +1,7 @@
-from player.players.teams.aggressive_player import Player
+from player.templates.player import Player
 from player.templates.pawn import *
 from setup.setup import *
+from setup.controls import *
 
 
 class ArenaPlayer(Player):
