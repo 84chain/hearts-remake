@@ -6,6 +6,7 @@ import numpy as np
 
 from sim.hearts_logic import State
 
+# TODO: add passing and teams
 
 class HeartsGame(object):
     def get_init_state(self):

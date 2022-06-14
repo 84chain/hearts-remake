@@ -2,8 +2,9 @@
 import statistics
 from math import comb
 
-from setup.hand import *
-from setup.table import *
+from .hand import *
+from .card import *
+from .suit import *
 
 
 # HELPERS

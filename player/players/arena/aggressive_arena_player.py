@@ -1,5 +1,5 @@
 from player.players.teams.aggressive_player import AggressivePlayer
-from player.templates.arena_player import ArenaPlayer
+from player.templates.arena_player import *
 from player.players.teams.shoot_player import ShootPlayer
 from setup.setup import *
 

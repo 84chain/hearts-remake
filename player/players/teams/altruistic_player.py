@@ -1,5 +1,6 @@
 from player.templates.player import *
 
+
 class AltruisticPlayer(Player):
     """
     Type of Player that is altruistic towards all players

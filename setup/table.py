@@ -1,6 +1,4 @@
-from player.templates.player import *
-from setup.card import *
-from setup.setup import *
+from setup.setup import is_taking, null_card
 
 
 class Table:
@@ -45,4 +43,4 @@ class Table:
                 if is_taking(self, i["card"]):
                     return i["player"]
         else:
-            return null_player
+            return None

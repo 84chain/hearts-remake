@@ -1,6 +1,5 @@
 # Pawns as simplified opponents for Player to keep track of
 
-from setup.hand import Hand
 from setup.setup import *
 
 

@@ -16,3 +16,9 @@ risk_tolerance = 1
 
 # minimum_takes is from [0-13], minimum number of guaranteed takes to trigger shooting
 minimum_takes = 10
+
+# taking_point_threshold is maximum number of points on the table when taking with d_jack is triggered
+taking_point_threshold = 100
+
+# blocking_point_threshold is the maximum number of points on the table when blocking shoot is triggered
+blocking_point_threshold = 40

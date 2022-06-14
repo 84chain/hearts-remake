@@ -1,8 +1,7 @@
-from player.templates.pawn import *
 from setup.setup import *
-from setup.suit import *
-from setup.table import *
 from setup.controls import *
+from .pawn import Pawn
+from setup.table import Table
 
 class Player:
     def __init__(self, id, name):
@@ -15,16 +14,21 @@ class Player:
         self.name = name
         self.points = 0
         self.round = 0
+        self.pawns = [Pawn(i) for i in [0, 1, 2, 3]]
+
         self.cards_took = []
         self.cards_played = []
         self.self_cards = []
+
         self.has_10 = False
         self.has_shot = False
         self.is_shooting = False
         self.shoot_blocked = False
+        self.teammate = None
+        self.team_card = null_card
+
         self.possible_takes = []
         self.guaranteed_takes = []
-        self.pawns = [Pawn(i) for i in [0, 1, 2, 3]]
         self.risk_tolerance = risk_tolerance
 
     def deal_hand(self, list_card):

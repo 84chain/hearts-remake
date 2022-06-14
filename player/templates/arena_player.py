@@ -1,5 +1,4 @@
-from player.templates.player import Player
-from player.templates.pawn import *
+from .player import *
 from setup.setup import *
 from setup.controls import *
 

@@ -104,10 +104,10 @@ class AggressivePlayer(Player):
             return moves[0]
         else:
             if AggressivePlayer.has_suit(self, table.first_card):
-                point_threshold = 100
-                return AggressivePlayer.avoid_taking(self,
-                                                     table) if table.points > point_threshold else AggressivePlayer.safest_take(
-                    self, table)
+                if table.points >= taking_point_threshold:
+                    return AggressivePlayer.avoid_taking(self, table)
+                else:
+                    return AggressivePlayer.safest_take(self, table)
             else:
                 return AggressivePlayer.give_l(self)
 

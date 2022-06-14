@@ -105,7 +105,7 @@ class ShootPlayer(Player):
         Returns card to play when blocking shoot first
         :return: Card()
         """
-        pass
+        return Player.play_first(self)
 
     def block_2nd_or_3rd(self, table):
         """
@@ -113,7 +113,20 @@ class ShootPlayer(Player):
         :param table: Table()
         :return: Card()
         """
-        pass
+        moves = ShootPlayer.legal_moves(self, table.first_card)
+
+        if len(moves) == 0:
+            return moves[0]
+        else:
+            if ShootPlayer.has_suit(self, table.first_card):
+                if table.points <= blocking_point_threshold:
+                    return ShootPlayer.safest_take(self, table)
+                elif ShootPlayer.is_missing_Suit(self, table) > 0 and table.suit == "s":
+                    return ShootPlayer.safest_take(self, table)
+                else:
+                    return ShootPlayer.avoid_taking(self, table)
+            else:
+                return ShootPlayer.give_l(self)
 
     def block_last(self, table):
         """
@@ -121,11 +134,23 @@ class ShootPlayer(Player):
         :param table: Table()
         :return: Card()
         """
-        pass
+        moves = ShootPlayer.legal_moves(self, table.first_card)
+
+        if len(moves) == 0:
+            return moves[0]
+        else:
+            if ShootPlayer.has_suit(self, table.first_card):
+                if table.points <= blocking_point_threshold:
+                    return ShootPlayer.safest_take(self, table)
+                else:
+                    return ShootPlayer.avoid_taking(self, table)
+            else:
+                return ShootPlayer.give_l(self)
 
     def shoot(self, table):
         """
         Returns card to play when shooting is triggered
+        Only used to test ShootPlayer
         :param table: Table()
         :return: Card()
         """
@@ -139,6 +164,7 @@ class ShootPlayer(Player):
     def block_shoot(self, table):
         """
         Returns card to play when blocking shoot
+        Only used to test ShootPlayer
         :param table: Table()
         :return: Card()
         """
