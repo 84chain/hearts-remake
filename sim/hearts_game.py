@@ -9,11 +9,15 @@ from sim.hearts_logic import State
 # TODO: add passing and teams
 
 class HeartsGame(object):
-    def get_init_state(self):
-        s = State()
-        self.deal_cards(s)
-        s.set_first_player()
-        return s
+    def get_deal_state(self):
+        self.state = State()
+        self.deal_cards(self.state)
+        return self.state
+
+    def get_pass_state(self, passes, pass_dir):
+        self.state.pass_cards(passes, pass_dir)
+        self.state.set_first_player()
+        return self.state
 
     def deal_cards(self, state):
         cards = list(range(52))

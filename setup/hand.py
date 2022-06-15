@@ -92,7 +92,7 @@ class Hand:
                 temp_hand += "1"
             else:
                 temp_hand += "0"
-        return int(temp_hand, 2)
+        return int(temp_hand[::-1], 2)
 
     def decode(self, int_hand):
         """

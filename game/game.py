@@ -1,4 +1,5 @@
 import random
+from tqdm import tqdm
 
 from player.players.teams.team_player import *
 
@@ -137,7 +138,7 @@ class Game:
 # Testing team guessing algorithm
 iterations = 1000
 data = []
-for _ in range(iterations):
+for _ in tqdm(range(iterations), desc="Game.play()"):
     g = Game(random.choice([1, -1, 2]))
     result = g.play()
     data.append(result)

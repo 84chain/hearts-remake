@@ -1,6 +1,9 @@
 import logging
 
 import numpy as np
+import random
+from setup.hand import Hand
+from setup.setup import reverse_bits
 from tqdm import tqdm
 
 from setup.card import *
@@ -36,7 +39,23 @@ class Arena:
                 draw result returned from the game that is neither 1, -1, nor 0.
         """
         players = [self.player1, self.player2, self.player3, self.player4]
-        state = self.game.get_init_state()
+        state = self.game.get_deal_state()  # deal hands to state
+
+        # deal hands to players
+        for i in range(4):
+             players[i].deal_hand(Hand(state.hands[i]).to_list())
+
+        # players choose pass
+        passes = [i.pass_cards() for i in players]
+        int_passes = [Hand(i).to_int() for i in passes]  # converted to integer
+        pass_dir = random.choice([-1, 1, 2])  # randomly chosen pass direction
+
+        # pass cards to state
+        state = self.game.get_pass_state(int_passes, pass_dir)
+
+        # pass cards to player
+        for i in range(4):
+            players[(i + pass_dir) % 4].receive_pass(passes[i])
 
         has_shooter = 0
         has_shot = 0

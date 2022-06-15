@@ -11,7 +11,7 @@ from sim.arena import Arena
 from sim.hearts_game import HeartsGame
 
 iterations = 1000  # minimum 1000 runs for statistical significance
-threads = 8 # best performance
+threads = 5 # best performance
 
 def play_threaded_games(players, num, thread_num):
     """
@@ -183,7 +183,7 @@ ai_players = [i for i in players if i.name == "a"]
 a = Arena(p1, p2, p3, p4, g)
 
 results = play_threaded_games(players, iterations, thread_num=threads)
-
+# results = a.play_games(iterations)
 print_results(merge_results(results))
 
 

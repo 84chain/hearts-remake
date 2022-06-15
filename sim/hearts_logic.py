@@ -8,6 +8,7 @@ class State:
         self.round = 0
         self.turn = 0
         self.hands = [0, 0, 0, 0]  # 4 longs, with each long containing 52 bits to model a set of cards
+        self.passes = [0, 0, 0, 0]  # 4 longs, with each long containing 52 bits to model a set of cards
         self.current_player = -1
         self.round_played = [-1, -1, -1, -1]  # 4 ints, each int representing a single card
         self.cards_played = [0, 0, 0, 0]  # same with self.hands
@@ -18,6 +19,12 @@ class State:
             if self.hands[i] & self.THREE_OF_CLUBS != 0:
                 self.current_player = i
                 break
+
+    def pass_cards(self, passes, pass_dir):
+        for i in range(4):
+            self.passes[i] = passes[i]
+            self.hands[i] &= ~passes[i]  # remove pass from hand
+            self.hands[(i + pass_dir) % 4] |= passes[i]  # add pass to passed player's hand
 
     def get_legal_moves(self):
         # first round

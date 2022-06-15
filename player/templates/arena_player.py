@@ -12,15 +12,25 @@ class ArenaPlayer(Player):
         self.card = -1
         self.points = 0
         self.round = 0
+        self.pawns = [Pawn(i) for i in [0, 1, 2, 3]]
+
+        self.hand = Hand([])
         self.cards_took = []
         self.cards_played = []
         self.self_cards = []
+
         self.has_10 = False
-        self.is_shooting = False
         self.has_shot = False
-        self.guaranteed_takes = []
+        self.is_shooting = False
+        self.shoot_blocked = False
+
+        self.teammate = None
+        self.team_card = null_card
+        self.team_chances = [-1 if i == self.id else 0 for i in range(4)]
+
         self.possible_takes = []
-        self.pawns = [Pawn(i) for i in [0, 1, 2, 3]]
+        self.guaranteed_takes = []
+        self.risk_tolerance = risk_tolerance
 
     def play(self, state):
         legal_moves = self.game.get_valid_moves(state)

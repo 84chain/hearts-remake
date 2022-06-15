@@ -403,6 +403,10 @@ def contains_suit(list_card, suit):
     return bool(len([c for c in list_card if c.suit == suit]))
 
 
+def reverse_bits(card):
+    return 51 - card.to_int()
+
+
 def create_pool(pawn, cards_played, own_hand):
     """
     Creates pools of possible cards for pawns

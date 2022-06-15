@@ -16,6 +16,7 @@ class Player:
         self.round = 0
         self.pawns = [Pawn(i) for i in [0, 1, 2, 3]]
 
+        self.hand = Hand([])
         self.cards_took = []
         self.cards_played = []
         self.self_cards = []
@@ -149,7 +150,7 @@ class Player:
             self.team_chances = [0.33 if i == 0 else -1 for i in self.team_chances]
         else:
             if self.team_card.is_eq(black_king):
-                self.team_chances[ace.id] = 1
+                self.team_chances[ace.id] = 100
                 Player.assign_teammate(self, ace)
             else:
                 self.team_chances = [0.5 if i == 0 else -1 for i in self.team_chances]
