@@ -52,7 +52,108 @@ class TeamPlayer(Player):
         :param table: Table()
         :return: None
         """
-        pass
+        if self.team_card.is_eq(black_king) or all_same_suit(table, self.card):
+            pass
+        elif self.team_card.is_eq(black_ace):
+            if is_taking(table, self.card):
+                if table.points > 0 and table.suit != "h":
+                    likely_opponents = [p["player"] for p in table.table if p["card"].points > 0]
+                    for i in likely_opponents:
+                        if table.cards[i.id].is_eq(q_spades):
+                            self.team_chances[i.id] = 0
+                        else:
+                            self.team_chances[i.id] -= loss_on_L
+                elif table.points < 0 and return_highest(table).value != 12:
+                    likely_teammate = [p["player"] for p in table.table if p["card"].is_eq(d_jack)][0]
+                    self.team_chances[likely_teammate.id] = 1
+                elif table.points == 0 or table.suit == "h":
+                    likely_teammates = [p["player"] for p in table.table if p["card"].suit != table.suit]
+                    for i in likely_teammates:
+                        self.team_chances[i.id] += gain_on_L
+                else:
+                    likely_teammates = [p["player"] for p in table.table if p["card"].suit != table.suit]
+                    for i in likely_teammates:
+                        self.team_chances[i.id] += gain_on_L
+            else:
+                taker = Table.current_taker(table)
+                if table.points > 0 and table.suit != "h":
+                    likely_teammates = [p["player"] for p in table.table if p["card"].points > 0]
+                    for i in likely_teammates:
+                        if table.cards[i.id].is_eq(q_spades):
+                            self.team_chances[i.id] = 1
+                        else:
+                            self.team_chances[i.id] += gain_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+                elif table.points < 0 and return_highest(table).value != 12:
+                    likely_opponent = [p["player"] for p in table.table if p["card"].is_eq(d_jack)][0]
+                    teammate_id = [i for i in range(4) if i not in [self.id, taker.id, likely_opponent.id]][0]
+                    self.team_chances[teammate_id] = 1
+                    self.team_chances[likely_opponent.id] -= loss_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+                elif table.points == 0 or table.suit == "h":
+                    likely_opponent = [p["player"] for p in table.table if p["card"].suit != table.suit][0]
+                    teammate_id = [i for i in range(4) if i not in [self.id, taker.id, likely_opponent.id]][0]
+                    self.team_chances[teammate_id] += gain_on_L
+                    self.team_chances[likely_opponent.id] -= loss_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+                else:
+                    likely_opponent = [p["player"] for p in table.table if p["card"].suit != table.suit][0]
+                    teammate_id = [i for i in range(4) if i not in [self.id, taker.id, likely_opponent.id]][0]
+                    self.team_chances[teammate_id] += gain_on_L
+                    self.team_chances[likely_opponent.id] -= loss_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+        else:
+            if is_taking(table, self.card):
+                if table.points > 0 and table.suit != "h":
+                    likely_opponents = [p["player"] for p in table.table if p["card"].points > 0]
+                    for i in likely_opponents:
+                        if table.cards[i.id].is_eq(q_spades):
+                            self.team_chances[i.id] = 0
+                        else:
+                            self.team_chances[i.id] -= loss_on_L
+                elif table.points < 0 and return_highest(table).value != 12:
+                    likely_teammate = [p["player"] for p in table.table if p["card"].is_eq(d_jack)][0]
+                    self.team_chances[likely_teammate.id] = 1
+                elif table.points == 0 or table.suit == "h":
+                    likely_teammates = [p["player"] for p in table.table if p["card"].suit != table.suit]
+                    for i in likely_teammates:
+                        self.team_chances[i.id] += gain_on_L
+            else:
+                taker = Table.current_taker(table)
+                if table.points > 0 and table.suit != "h":
+                    likely_teammates = [p["player"] for p in table.table if p["card"].points > 0]
+                    for i in likely_teammates:
+                        if table.cards[i.id].is_eq(q_spades):
+                            self.team_chances[i.id] = 1
+                        else:
+                            self.team_chances[i.id] += gain_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+                elif table.points < 0 and return_highest(table).value != 12:
+                    likely_opponent = [p["player"] for p in table.table if p["card"].is_eq(d_jack)][0]
+                    teammate_id = [i for i in range(4) if i not in [self.id, taker.id, likely_opponent.id]][0]
+                    self.team_chances[teammate_id] = 1
+                    self.team_chances[likely_opponent.id] -= loss_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+                elif table.points == 0 or table.suit == "h":
+                    likely_opponent = [p["player"] for p in table.table if p["card"].suit != table.suit][0]
+                    teammate_id = [i for i in range(4) if i not in [self.id, taker.id, likely_opponent.id]][0]
+                    self.team_chances[teammate_id] += gain_on_L
+                    self.team_chances[likely_opponent.id] -= loss_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+                else:
+                    likely_opponent = [p["player"] for p in table.table if p["card"].suit != table.suit][0]
+                    teammate_id = [i for i in range(4) if i not in [self.id, taker.id, likely_opponent.id]][0]
+                    self.team_chances[teammate_id] += gain_on_L
+                    self.team_chances[likely_opponent.id] -= loss_on_L
+                    self.team_chances[taker.id] -= loss_on_L
+
+        self.team_chances = [1 if i > 1 else i for i in self.team_chances]
+        likely_teammate_chance = multiple_max(self.team_chances)
+        if likely_teammate_chance is not None:
+            teammate_id = self.team_chances.index(likely_teammate_chance)
+            teammate = [p for p in table.players if p.id == teammate_id][0]
+            TeamPlayer.assign_teammate(self, teammate)
+
 
     def play_first(self):
         """
@@ -61,10 +162,10 @@ class TeamPlayer(Player):
         """
         if self.is_shooting:
             return ShootPlayer.shoot_first(self)
-        elif self.teammate is None:
-            return AggressivePlayer.play_first(self)
-        else:
+        elif self.teammate is not None:
             return AltruisticPlayer.play_first(self)
+        else:
+            return AggressivePlayer.play_first(self)
 
     def play_second(self, table):
         """
@@ -76,10 +177,10 @@ class TeamPlayer(Player):
             return ShootPlayer.shoot_2nd_or_3rd(self, table)
         elif not self.shoot_blocked:
             return ShootPlayer.block_2nd_or_3rd(self, table)
-        elif self.teammate is None:
-            return AggressivePlayer.play_second(self, table)
-        else:
+        elif self.teammate is not None:
             return AltruisticPlayer.play_second(self, table)
+        else:
+            return AggressivePlayer.play_second(self, table)
 
     def play_third(self, table):
         """
@@ -91,10 +192,10 @@ class TeamPlayer(Player):
             return ShootPlayer.shoot_2nd_or_3rd(self, table)
         elif not self.shoot_blocked:
             return ShootPlayer.block_2nd_or_3rd(self, table)
-        elif self.teammate is None:
-            return AggressivePlayer.play_third(self, table)
-        else:
+        elif self.teammate is not None:
             return AltruisticPlayer.play_third(self, table)
+        else:
+            return AggressivePlayer.play_third(self, table)
 
     def play_last(self, table):
         """
@@ -106,10 +207,10 @@ class TeamPlayer(Player):
             return ShootPlayer.shoot_last(self, table)
         elif not self.shoot_blocked:
             return ShootPlayer.block_last(self, table)
-        elif self.teammate is None:
-            return AggressivePlayer.play_last(self, table)
-        else:
+        elif self.teammate is not None:
             return AltruisticPlayer.play_last(self, table)
+        else:
+            return AggressivePlayer.play_last(self, table)
 
     def play_card(self, table):
         """

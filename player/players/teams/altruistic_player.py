@@ -6,14 +6,6 @@ class AltruisticPlayer(Player):
     Type of Player that is altruistic towards all players
     """
 
-    def assign_teammate(self, teammate):
-        """
-        Assigns teammate
-        :param teammate: Player()
-        :return: None
-        """
-        self.teammate = teammate
-
     def choose_card(self):
         """
         Override for choose_card that priorities suits that teammate does not have
@@ -97,7 +89,7 @@ class AltruisticPlayer(Player):
                     else:
                         return diamonds.highest
             else:
-                return AltruisticPlayer.safest_take(self, table)
+                return self.hand.diamonds[-1]
 
         elif table.suit == "s":
             lower_spades = [s for s in self.hand.spades if s.value < highest.value]

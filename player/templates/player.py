@@ -24,8 +24,10 @@ class Player:
         self.has_shot = False
         self.is_shooting = False
         self.shoot_blocked = False
+
         self.teammate = None
         self.team_card = null_card
+        self.team_chances = [-1 if i == self.id else 0 for i in range(4)]
 
         self.possible_takes = []
         self.guaranteed_takes = []
@@ -136,6 +138,31 @@ class Player:
             return bool(len(self.hand.spades))
         elif first_card.suit == "h":
             return bool(len(self.hand.hearts))
+
+    def ace_reveal(self, ace):
+        """
+        Initializes values after seeing black ace show
+        :param ace: Player()
+        :return: None
+        """
+        if self.team_card.is_eq(black_ace):
+            self.team_chances = [0.33 if i == 0 else -1 for i in self.team_chances]
+        else:
+            if self.team_card.is_eq(black_king):
+                self.team_chances[ace.id] = 1
+                Player.assign_teammate(self, ace)
+            else:
+                self.team_chances = [0.5 if i == 0 else -1 for i in self.team_chances]
+                self.team_chances[ace.id] = 0
+
+
+    def assign_teammate(self, teammate):
+        """
+        Assigns teammate
+        :param teammate: Player()
+        :return: None
+        """
+        self.teammate = teammate
 
     def update_round(self, table):
         """
@@ -335,7 +362,11 @@ class Player:
                 if lower_diamonds:
                     return lower_diamonds[-1]
                 else:
-                    return [d for d in self.hand.diamonds if d.value > 11][0]
+                    non_jack_diamonds = [d for d in self.hand.diamonds if d.value > 11]
+                    if non_jack_diamonds:
+                        return non_jack_diamonds[0]
+                    else:
+                        return self.hand.diamonds[-1]
             else:
                 if table_points < 0:
                     return diamonds.highest
@@ -344,14 +375,11 @@ class Player:
                                                                                                                 table)
 
         elif table.suit == "s":
-            spades = Suit(self.hand.spades)
-            if spades.highest.value == 12:
-                if spades.next_highest.value == 12:
-                    return self.hand.spades[-2]
-                else:
-                    return spades.next_highest
+            non_queen_spades = [i for i in self.hand.spades if i.value != 12]
+            if non_queen_spades:
+                return non_queen_spades[-1]
             else:
-                return spades.highest
+                return self.hand.spades[0]
 
         elif table.suit == "h":
             hearts = Suit(self.hand.hearts)

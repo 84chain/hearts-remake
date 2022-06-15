@@ -5,15 +5,33 @@ from math import comb
 from .hand import *
 from .card import *
 from .suit import *
+from .controls import *
 
 
 # HELPERS
 def c_comb(n, k):
+    """
+    Custom combinations that returns 0 if n or k are negative
+    :param n: int
+    :param k: int
+    :return: int
+    """
     if n < 0 or k < 0:
         return 0
     else:
         return comb(n, k)
 
+def multiple_max(value_list):
+    """
+    Maximum value finder that returns None if there is a tie for max value
+    :param value_list: list(int)
+    :return: int or None
+    """
+    max_value = max(value_list)
+    if len([i for i in value_list if i == max_value]) > 1:
+        return None
+    else:
+        return max_value
 
 def return_highest(table):
     """
@@ -118,6 +136,12 @@ def all_same_suit(table, card):
 
 
 def all_same_suit_alt(table, card):
+    """
+    all_same_suit but for the sim
+    :param table: Table()
+    :param card: Card()
+    :return: bool
+    """
     ind = -1
     for i in range(4):
         if card.is_eq(table.cards[i]):

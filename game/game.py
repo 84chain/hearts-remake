@@ -1,6 +1,6 @@
 import random
 
-from player.players.teams.aggressive_player import *
+from player.players.teams.team_player import *
 
 
 # HELPERS
@@ -22,18 +22,36 @@ class Game:
 
         self.vector = []
 
+        self.teams = [i for i in team_cards]
+        random.shuffle(self.teams)
+
         self.pass_direction = pass_direction  # 1, -1, 2
 
         hands = [self.deck[:13], self.deck[13:26], self.deck[26:39], self.deck[39:]]
-        self.player_0 = AggressivePlayer(0, 0)
-        self.player_1 = AggressivePlayer(1, 1)
-        self.player_2 = AggressivePlayer(2, 2)
-        self.player_3 = AggressivePlayer(3, 3)
+        self.player_0 = TeamPlayer(0, 0)
+        self.player_1 = TeamPlayer(1, 1)
+        self.player_2 = TeamPlayer(2, 2)
+        self.player_3 = TeamPlayer(3, 3)
         self.players = [self.player_0, self.player_1, self.player_2, self.player_3]
         self.pass_data = []
 
         for i in range(4):
             self.players[i].deal_hand(hands[i])
+            self.players[i].team_card = self.teams[i]
+
+        black_ids = [self.teams.index(black_king), self.teams.index(black_ace)]
+        red_ids = [self.teams.index(red_king), self.teams.index(red_ace)]
+
+        self.real_teams = [
+            [i for i in black_ids if i != 0][0] if 0 in black_ids else [i for i in red_ids if i != 0][0],
+            [i for i in black_ids if i != 1][0] if 1 in black_ids else [i for i in red_ids if i != 1][0],
+            [i for i in black_ids if i != 2][0] if 2 in black_ids else [i for i in red_ids if i != 2][0],
+            [i for i in black_ids if i != 3][0] if 3 in black_ids else [i for i in red_ids if i != 3][0]
+        ]
+
+        ace_player = [p for p in self.players if p.team_card.is_eq(black_ace)][0]
+        for i in range(4):
+            self.players[i].ace_reveal(ace_player)
 
         Game.passCards(self)
 
@@ -76,8 +94,13 @@ class Game:
         for card in first_table.cards:
             card_list.append(card.to_string())
 
+        round_1_teams = []
         for p in self.players:
             p.update_round(first_table)
+            if p.teammate is not None:
+                round_1_teams.append(p.teammate.id)
+        if round_1_teams == self.real_teams:
+            return 1
         order_list.append(player_order(next_first_player(first_table, first_player_order)))
 
         # ROUND 2-13
@@ -91,8 +114,13 @@ class Game:
             card_list = []
             for card in table.cards:
                 card_list.append(card.to_string())
+            round_teams = []
             for p in self.players:
                 p.update_round(table)
+                if p.teammate is not None:
+                    round_teams.append(p.teammate.id)
+            if round_teams == self.real_teams:
+                return rounds
             order_list.append(player_order(next_first_player(table, order)))
 
         pointdata = []
@@ -103,5 +131,15 @@ class Game:
 
         # reset
         # Game.reset(self)
+        return 0
 
-        return pointdata
+
+# Testing team guessing algorithm
+iterations = 1000
+data = []
+for _ in range(iterations):
+    g = Game(random.choice([1, -1, 2]))
+    result = g.play()
+    data.append(result)
+
+print(sum(data) / (iterations - len([i for i in data if i == 0])))

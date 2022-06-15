@@ -22,3 +22,7 @@ taking_point_threshold = 100
 
 # blocking_point_threshold is the maximum number of points on the table when blocking shoot is triggered
 blocking_point_threshold = 40
+
+# loss and gain on L change how likely/unlikely a player is on team
+loss_on_L = 1 / 3
+gain_on_L = 1 / 3

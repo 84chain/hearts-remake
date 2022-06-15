@@ -107,11 +107,16 @@ d_jack = Card("dj")
 q_spades = Card("sq")
 heart_10 = Card("h10")
 club_3 = Card("c3")
+black_king = Card("ck")
+black_ace = Card("ca")
+red_king = Card("dk")
+red_ace = Card("da")
 null_card = Card("n0")
 
 all_clubs = [Card(f"c{i}") for i in str_values]
 all_diamonds = [Card(f"d{i}") for i in str_values]
 all_spades = [Card(f"s{i}") for i in str_values]
 all_hearts = [Card(f"h{i}") for i in str_values]
+team_cards = [black_king, black_ace, red_king, red_ace]
 all_cards = all_clubs + all_diamonds + all_spades + all_hearts
 all_int_cards = [c.to_int() for c in all_cards]

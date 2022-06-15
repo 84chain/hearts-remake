@@ -6,7 +6,7 @@ import discord
 from PIL import Image
 from discord.ext import commands
 
-from player.players.teams.aggressive_player import AggressivePlayer
+from player.players.teams.team_player import *
 from player.players.other.game_player import GamePlayer
 from setup.setup import *
 
@@ -97,6 +97,7 @@ def isCallerAndCorrect(msg, content):
     return inner
 
 
+
 @bot.event
 async def on_ready():
     print("rdy")
@@ -108,22 +109,38 @@ async def start(ctx, pass_direction):
             [str(n) for n in range(2, 11)] + ["j", "q", "k", "a"]]
     random.shuffle(deck)
 
+    teams = [i for i in team_cards]
+    random.shuffle(teams)
+
+    black_ids = [teams.index(black_king), teams.index(black_ace)]
+    red_ids = [teams.index(red_king), teams.index(red_ace)]
+
     pass_direction = ["", "r", "a", "l"].index(pass_direction)  # 1, -1, 2
     pass_direction_verbose = ["", "Right", "Across", "Left"][pass_direction]
 
     hands = [deck[:13], deck[13:26], deck[26:39], deck[39:]]
     player_0 = GamePlayer(0, 0)
-    player_1 = AggressivePlayer(1, 1)
-    player_2 = AggressivePlayer(2, 2)
-    player_3 = AggressivePlayer(3, 3)
+    player_1 = TeamPlayer(1, 1)
+    player_2 = TeamPlayer(2, 2)
+    player_3 = TeamPlayer(3, 3)
     players = [player_0, player_1, player_2, player_3]
     pass_data = []
 
-    # Deal cards
+    # Deal cards and teams
     for i in range(4):
         players[i].deal_hand(hands[i])
+        players[i].team_card = teams[i]
+
+    # Ace shows
+    ace_player = [p for p in players if p.team_card.is_eq(black_ace)][0]
+    for i in range(4):
+        players[i].ace_reveal(ace_player)
 
     setattr(start, "hand", player_0.hand)
+
+    # Display team
+    e = discord.Embed(title="Teams", description=f"Your Team: {player_0.team_card.to_string()}\nBlack Ace: Player {ace_player.id}")
+    await ctx.send(embed=e)
 
     # Display Hand
     img = display_hand(player_0.hand)
@@ -192,7 +209,7 @@ async def start(ctx, pass_direction):
         e.set_image(url="attachment://image.png")
         await ctx.send(file=discord.File(fp=image_binary, filename='image.png'), embed=e)
 
-    # Round
+    # Round 1
     player_with_3 = [player for player in players if in_hand(club_3, player.hand)][0].id
     first_player_order = player_order(player_with_3)
     first_table = Table()
@@ -263,6 +280,10 @@ async def start(ctx, pass_direction):
     setattr(start, "hand", player_0.hand)
     order_list.append(player_order(next_first_player(first_table, first_player_order)))
 
+    # for p in players:
+    #     if p.teammate is not None:
+    #         await ctx.send(f"Round 1: Player {p.id} thinks {p.teammate.id} is on their team")
+
     # Rounds 2-13
     for rounds in range(2, 14):
         table = Table()
@@ -329,22 +350,44 @@ async def start(ctx, pass_direction):
         setattr(start, "hand", player_0.hand)
         order_list.append(player_order(next_first_player(table, order)))
 
+        # for p in players:
+        #     if p.teammate is not None:
+        #         await ctx.send(f"Round {rounds}: Player {p.id} thinks Player {p.teammate.id} is on their team")
+
     # Count points
     pointdata = []
     for p in players:
         p.count_points()
         pointdata.append([p.id, p.points])
 
+    # Team results
+    black_team = [p for p in pointdata if p[0] in black_ids]
+    red_team = [p for p in pointdata if p[0] in red_ids]
+
+    black_team_score = sum([p[-1] for p in black_team])
+    red_team_score = sum([p[-1] for p in red_team])
+
     # Send results
-    result = discord.Embed(title="Game Over", description="")
-    sorted_results = sorted(pointdata, key=lambda x: x[-1])
-    standings = "\n".join(
-        [f"Player {i[0]}: {i[-1]} points!" if i[0] != 0 else f"You: {i[-1]} points!" for i in sorted_results])
-    result.add_field(name="Results", value=standings)
-    if sorted_results[0][0] == 0:
-        result.set_footer(text="Nice Job!")
-    elif sorted_results[-1][0] == 0:
-        result.set_footer(text="You can't even beat the AI? Shame.")
+    if black_team_score < red_team_score:
+        title = "Black Team Won"
+    elif black_team_score > red_team_score:
+        title = "Red Team Won"
+    else:
+        title = "Tie"
+
+    result = discord.Embed(title=title, description="")
+    sorted_black_results = sorted(black_team, key=lambda x: x[-1])
+    sorted_red_results = sorted(red_team, key=lambda x: x[-1])
+    black_standings = "\n".join(
+        [f"Player {i[0]}: {i[-1]} points!" if i[0] != 0 else f"You: {i[-1]} points!" for i in sorted_black_results])
+    red_standings = "\n".join(
+        [f"Player {i[0]}: {i[-1]} points!" if i[0] != 0 else f"You: {i[-1]} points!" for i in sorted_red_results])
+    if black_team_score >= red_team_score:
+        result.add_field(name="Black Team", value=black_standings)
+        result.add_field(name="Red Team", value=red_standings)
+    elif black_team_score < red_team_score:
+        result.add_field(name="Red Team", value=red_standings)
+        result.add_field(name="Black Team", value=black_standings)
     await ctx.send(embed=result)
 
     # End game
