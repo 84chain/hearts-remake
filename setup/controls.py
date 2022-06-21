@@ -1,8 +1,14 @@
 # Weights for passing
+# Higher -> pass, lower -> keep
+#               -, -, -, 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A
+club_weights = [0, 0, 0, -1, 0, -1, 0, 1, 2, 3, 4, 5, 1, 1, 1, 1]
 diamond_weights = [0, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, -0.5, -1, -1.5, -2]
+spade_weights = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 1, 1]
 hearts_weights = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1.5, 2, 2.5, 3]
 
 # Preference for which suits to pass away, e is the rating bonus (additive) for getting rid of a suit
+# Higher -> pass, lower -> keep
+# Multiplicative with calculated ratings
 suits_preference = {
     "c": 1,
     "d": 1,
@@ -24,5 +30,5 @@ taking_point_threshold = 100
 blocking_point_threshold = 40
 
 # loss and gain on L change how likely/unlikely a player is on team
-loss_on_L = 1 / 13
-gain_on_L = 1 / 13
+loss_on_L = 1 / 13  # decrease in rating of player that gave L to player
+gain_on_L = 1 / 13  # increase in rating of player that gave L to other players

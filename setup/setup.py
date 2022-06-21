@@ -237,12 +237,12 @@ def rate_remaining_hand(h):
     spades = h[-1].spades
     hearts = h[-1].hearts
 
-    c_scale = statistics.mean([v for v in range(2, 15) if v not in [c.value for c in clubs]])
+    c_scale = statistics.mean([club_weights[v] for v in range(2, 15) if v not in [c.value for c in clubs]])
     if len(diamonds) + len([d for d in h[0] if d % 13 == 1]) <= 2:
         d_scale = statistics.mean([diamond_weights[v] for v in range(2, 15) if v not in [c.value for c in diamonds]])
     else:
         d_scale = 0
-    s_scale = statistics.mean([v for v in range(2, 15) if v not in [c.value for c in spades]])
+    s_scale = statistics.mean([spade_weights[v] for v in range(2, 15) if v not in [c.value for c in spades]])
     h_scale = statistics.mean([hearts_weights[v] for v in range(2, 15) if v not in [c.value for c in hearts]])
 
     c_rating = c_scale * suits_preference["c"]
