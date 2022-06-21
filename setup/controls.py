@@ -8,7 +8,7 @@ suits_preference = {
     "d": 1,
     "s": 1,
     "h": 1,
-    "e": 10
+    "e": 1
 }
 
 # risk_tolerance is from [0, 1], 0 meaning always avoiding taking, and 1 always taking.
@@ -24,5 +24,5 @@ taking_point_threshold = 100
 blocking_point_threshold = 40
 
 # loss and gain on L change how likely/unlikely a player is on team
-loss_on_L = 1 / 4
-gain_on_L = 1 / 4
+loss_on_L = 1 / 13
+gain_on_L = 1 / 13

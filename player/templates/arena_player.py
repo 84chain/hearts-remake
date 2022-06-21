@@ -117,3 +117,8 @@ class ArenaPlayer(Player):
                 self.is_shooting = False
         else:
             self.is_shooting = False
+        shoot_pawns = [p.can_shoot() for p in self.pawns]
+        if True in shoot_pawns:
+            self.shoot_blocked = False
+        else:
+            self.shoot_blocked = True

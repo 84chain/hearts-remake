@@ -14,6 +14,7 @@ class HeartsGame(object):
         self.deal_cards(self.state)
         return self.state
 
+
     def get_pass_state(self, passes, pass_dir):
         self.state.pass_cards(passes, pass_dir)
         self.state.set_first_player()

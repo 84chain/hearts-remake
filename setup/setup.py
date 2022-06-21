@@ -406,6 +406,21 @@ def contains_suit(list_card, suit):
 def reverse_bits(card):
     return 51 - card.to_int()
 
+def team_chances_cap(chance):
+    """
+    Takes a float that represents likelyhood of teammate and maps it to between 0 and 1
+    :param chance:
+    :return:
+    """
+    if chance == -1:
+        return chance
+    else:
+        if chance > 1:
+            return 1
+        elif chance < 0:
+            return 0
+        else:
+            return chance
 
 def create_pool(pawn, cards_played, own_hand):
     """

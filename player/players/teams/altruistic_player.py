@@ -58,6 +58,22 @@ class AltruisticPlayer(Player):
         else:
             return Player.choose_card(self)
 
+    def is_missing_Suit(self, table):
+        """
+        Override for is_missing_suit that considers teammate
+        :param table: Table()
+        :return: float
+        """
+        other_pawns = [p for p in self.pawns if p.id != self.id]
+        cloned_pawns = [p.create_clone(table.suit) if (p.id not in table.player_ids and p.id != self.teammate.id) else p for p in other_pawns]
+        target_combinations = calculate_combinations(order_pools(cloned_pawns, self.cards_played, self.hand))
+        total_combinations = calculate_combinations(order_pools(other_pawns, self.cards_played, self.hand))
+        if total_combinations == 0:
+            chance = 0
+        else:
+            chance = target_combinations / total_combinations
+        return chance
+
     def avoid_taking(self, table):
         """
         Override for avoid_taking, assuming teammate is taking

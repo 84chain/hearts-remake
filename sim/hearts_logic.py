@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class State:
     THREE_OF_CLUBS = 2  # bitmask for three of clubs
 

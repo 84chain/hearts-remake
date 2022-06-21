@@ -5,13 +5,14 @@ from multiprocessing import Pool
 
 from player.players.arena.aggressive_arena_player import AggressiveArenaPlayer
 from player.players.arena.random_arena_player import RandomArenaPlayer
+from player.players.arena.team_arena_player import TeamArenaPlayer
 from setup.setup import *
 from setup.controls import *
 from sim.arena import Arena
 from sim.hearts_game import HeartsGame
 
 iterations = 1000  # minimum 1000 runs for statistical significance
-threads = 5 # best performance
+threads = 8 # best performance
 
 def play_threaded_games(players, num, thread_num):
     """
@@ -47,6 +48,11 @@ def print_results(results):
         if __name__ == "__main__":
             print(f"Risk Tolerance: {risk_tolerance}")
             print("Iterations:", iterations)
+            print()
+            print("Black Wins: ", results["black_wins"], results["black_wins"] / iterations)
+            print("Red Wins: ", results["red_wins"], results["red_wins"] / iterations)
+            print("Ties: ", results["ties"], results["ties"] / iterations)
+            print()
         print("Player 1 average points: ", results["total_points"][0] / iterations,
               "stdev of mean: ", round(statistics.stdev(results["points"][0]) / math.sqrt(iterations), 2))
         print("Player 2 average points: ", results["total_points"][1] / iterations,
@@ -91,6 +97,9 @@ def merge_results(results):
     result_ai_points = [i["ai_points"] for i in results]
     result_shoot_attempts = [i["shoot_attempts"] for i in results]
     result_successful_shoot = [i["successful_shoot"] for i in results]
+    result_black_wins = [i["black_wins"] for i in results]
+    result_red_wins = [i["red_wins"] for i in results]
+    result_ties = [i["ties"] for i in results]
 
     total_points = [
         sum([i[0] for i in result_total_points]),
@@ -138,6 +147,9 @@ def merge_results(results):
     ai_points = [i for k in result_ai_points for i in k]
     shoot_attempts = [i for k in result_shoot_attempts for i in k]
     successful_shoot = [i for k in result_successful_shoot for i in k]
+    black_wins = sum(result_black_wins)
+    red_wins = sum(result_red_wins)
+    ties = sum(result_ties)
 
     return {
         "total_points": total_points,
@@ -146,7 +158,10 @@ def merge_results(results):
         "points": points,
         "ai_points": ai_points,
         "shoot_attempts": shoot_attempts,
-        "successful_shoot": successful_shoot
+        "successful_shoot": successful_shoot,
+        "black_wins": black_wins,
+        "red_wins": red_wins,
+        "ties": ties
     }
 
 
@@ -173,10 +188,10 @@ def collect_data(p1, p2, p3, p4, steps, stop, file):
 
 g = HeartsGame()
 
-p1 = AggressiveArenaPlayer(g, 0)
-p2 = AggressiveArenaPlayer(g, 1)
-p3 = AggressiveArenaPlayer(g, 2)
-p4 = AggressiveArenaPlayer(g, 3)
+p1 = TeamArenaPlayer(g, 0)
+p2 = TeamArenaPlayer(g, 1)
+p3 = TeamArenaPlayer(g, 2)
+p4 = TeamArenaPlayer(g, 3)
 
 players = [p1, p2, p3, p4]
 ai_players = [i for i in players if i.name == "a"]

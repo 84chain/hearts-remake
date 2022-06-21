@@ -119,7 +119,7 @@ async def start(ctx, pass_direction):
     pass_direction_verbose = ["", "Right", "Across", "Left"][pass_direction]
 
     hands = [deck[:13], deck[13:26], deck[26:39], deck[39:]]
-    player_0 = GamePlayer(0, 0)
+    player_0 = TeamPlayer(0, 0)
     player_1 = TeamPlayer(1, 1)
     player_2 = TeamPlayer(2, 2)
     player_3 = TeamPlayer(3, 3)
@@ -153,23 +153,23 @@ async def start(ctx, pass_direction):
         await ctx.send(file=discord.File(fp=image_binary, filename='image.png'), embed=e)
 
     # Wait for pass
-    while True:
-        try:
-            pass_response = await bot.wait_for("message", check=isCallerAndCorrect(ctx.message, "pass"), timeout=60)
-            p_0_pass = [Card(i.strip()) for i in pass_response.content[5:].split(",")]
-            if valid_pass(p_0_pass, player_0.hand):
-                pass_data.append(p_0_pass)
-            else:
-                raise IndexError
-            break
-        except asyncio.TimeoutError:
-            await ctx.send("You have taken too long, game aborted")
-            return
-        except IndexError:
-            await ctx.send("You do not have those cards, please try again.")
-            pass
+    # while True:
+    #     try:
+    #         pass_response = await bot.wait_for("message", check=isCallerAndCorrect(ctx.message, "pass"), timeout=60)
+    #         p_0_pass = [Card(i.strip()) for i in pass_response.content[5:].split(",")]
+    #         if valid_pass(p_0_pass, player_0.hand):
+    #             pass_data.append(p_0_pass)
+    #         else:
+    #             raise IndexError
+    #         break
+    #     except asyncio.TimeoutError:
+    #         await ctx.send("You have taken too long, game aborted")
+    #         return
+    #     except IndexError:
+    #         await ctx.send("You do not have those cards, please try again.")
+    #         pass
 
-    p_0_pass = player_0.pass_cards(p_0_pass)
+    p_0_pass = player_0.pass_cards()
     p_1_pass = player_1.pass_cards()
     p_2_pass = player_2.pass_cards()
     p_3_pass = player_3.pass_cards()
@@ -219,7 +219,7 @@ async def start(ctx, pass_direction):
         c_player = players[first_player_order[p]]
 
         # If Player's Turn
-        if c_player.id == 0:
+        if c_player.name == "g":
 
             # Show table
             img = display_table(first_table)
@@ -280,9 +280,9 @@ async def start(ctx, pass_direction):
     setattr(start, "hand", player_0.hand)
     order_list.append(player_order(next_first_player(first_table, first_player_order)))
 
-    # for p in players:
-    #     if p.teammate is not None:
-    #         await ctx.send(f"Round 1: Player {p.id} thinks {p.teammate.id} is on their team")
+    for p in players:
+        if p.teammate is not None:
+            await ctx.send(f"Round 1: Player {p.id} thinks {p.teammate.id} is on their team")
 
     # Rounds 2-13
     for rounds in range(2, 14):
@@ -291,7 +291,7 @@ async def start(ctx, pass_direction):
         for p in range(4):
             c_player = players[order[p]]
             # If Player's Turn
-            if c_player.id == 0:
+            if c_player.name == "g":
 
                 # Show table
                 img = display_table(table)
@@ -350,9 +350,9 @@ async def start(ctx, pass_direction):
         setattr(start, "hand", player_0.hand)
         order_list.append(player_order(next_first_player(table, order)))
 
-        # for p in players:
-        #     if p.teammate is not None:
-        #         await ctx.send(f"Round {rounds}: Player {p.id} thinks Player {p.teammate.id} is on their team")
+        for p in players:
+            if p.teammate is not None:
+                await ctx.send(f"Round {rounds}: Player {p.id} thinks Player {p.teammate.id} is on their team")
 
     # Count points
     pointdata = []

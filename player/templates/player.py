@@ -155,7 +155,7 @@ class Player:
             else:
                 self.team_chances = [0.5 if i == 0 else -1 for i in self.team_chances]
                 self.team_chances[ace.id] = 0
-
+        self.ace_player = ace
 
     def assign_teammate(self, teammate):
         """

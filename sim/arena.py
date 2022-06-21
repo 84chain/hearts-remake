@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import random
 from setup.hand import Hand
-from setup.setup import reverse_bits
+from setup.setup import team_cards
 from tqdm import tqdm
 
 from setup.card import *
@@ -44,6 +44,21 @@ class Arena:
         # deal hands to players
         for i in range(4):
              players[i].deal_hand(Hand(state.hands[i]).to_list())
+
+        # set teams of players
+        teams = [i for i in team_cards]
+        random.shuffle(teams)
+        for i in range(4):
+            players[i].team_card = teams[i]
+            if teams[i].is_eq(black_ace):
+                ace_player = players[i]
+
+        # black ace shows
+        for i in range(4):
+            players[i].ace_reveal(ace_player)
+
+        # record teams
+        game_teams = [{"player": i.id, "card": i.team_card} for i in players]
 
         # players choose pass
         passes = [i.pass_cards() for i in players]
@@ -100,7 +115,8 @@ class Arena:
         return {
             "points": final_points,
             "shooter": has_shooter,
-            "shot": has_shot
+            "shot": has_shot,
+            "teams": game_teams
         }
 
     def play_games(self, num, verbose=False):
@@ -114,6 +130,9 @@ class Arena:
         total_points = np.zeros(4)
         points = [[], [], [], []]
         total_rankings = np.zeros([4, 4])
+        black_wins = 0
+        red_wins = 0
+        ties = 0
 
         total_ai_points = np.zeros(4)
         ai_points = [[], [], [], []]
@@ -128,10 +147,24 @@ class Arena:
             game_points = game_result["points"]
             shoot_attempt = game_result["shooter"]
             shoot_result = game_result["shot"]
+            teams = game_result["teams"]
+            black_ids = [i["player"] for i in teams if i["card"].suit == "c"]
+            red_ids = [i["player"] for i in teams if i["card"].suit == "d"]
 
             rankings = [sorted(game_points).index(x) for x in game_points]
             shoot_attempts.append(shoot_attempt)
             successful_shoot.append(shoot_result)
+
+            black_points = sum([game_points[i] for i in black_ids])
+            red_points = sum([game_points[i] for i in red_ids])
+
+            if black_points == red_points:
+                ties += 1
+            else:
+                if black_points < red_points:
+                    black_wins += 1
+                else:
+                    red_wins += 1
 
             for i in range(4):
                 if i in ai_players:
@@ -154,5 +187,8 @@ class Arena:
             "points": points,
             "ai_points": ai_points,
             "shoot_attempts": shoot_attempts,
-            "successful_shoot": successful_shoot
+            "successful_shoot": successful_shoot,
+            "black_wins": black_wins,
+            "red_wins": red_wins,
+            "ties": ties
         }

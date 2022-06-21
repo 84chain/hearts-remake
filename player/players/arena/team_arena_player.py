@@ -1,10 +1,8 @@
-from player.players.teams.aggressive_player import AggressivePlayer
 from player.templates.arena_player import *
-from player.players.teams.shoot_player import ShootPlayer
 from setup.setup import *
+from player.players.teams.team_player import *
 
-
-class AggressiveArenaPlayer(ArenaPlayer, AggressivePlayer, ShootPlayer):
+class TeamArenaPlayer(ArenaPlayer, TeamPlayer):
     def __init__(self, game, id):
         self.game = game
         ArenaPlayer.__init__(self, game, id)
@@ -30,22 +28,14 @@ class AggressiveArenaPlayer(ArenaPlayer, AggressivePlayer, ShootPlayer):
         if len(valid_moves) == 1:
             card = Card(valid_moves[0])
         else:
-            if self.is_shooting:
-                if state.turn == 0:
-                    card = ShootPlayer.shoot_first(self)
-                elif state.turn == 1 or state.turn == 2:
-                    card = ShootPlayer.shoot_2nd_or_3rd(self, table)
-                elif state.turn == 3:
-                    card = ShootPlayer.shoot_last(self, table)
-            else:
-                if state.turn == 0:
-                    card = AggressivePlayer.play_first(self)
-                elif state.turn == 1:
-                    card = AggressivePlayer.play_second(self, table)
-                elif state.turn == 2:
-                    card = AggressivePlayer.play_third(self, table)
-                elif state.turn == 3:
-                    card = AggressivePlayer.play_last(self, table)
+            if state.turn == 0:
+                card = TeamPlayer.play_first(self)
+            elif state.turn == 1:
+                card = TeamPlayer.play_second(self, table)
+            elif state.turn == 2:
+                card = TeamPlayer.play_third(self, table)
+            elif state.turn == 3:
+                card = TeamPlayer.play_last(self, table)
         self.card = card
         self.cards_played.append(card)
         self.self_cards.append(card)
@@ -63,6 +53,6 @@ class AggressiveArenaPlayer(ArenaPlayer, AggressivePlayer, ShootPlayer):
             h_temp = [heart for heart in self.hand.hearts if heart.value != card.value]
             hand_list = self.hand.clubs + self.hand.diamonds + self.hand.spades + h_temp
 
-        AggressiveArenaPlayer.deal_hand(self, hand_list)
+        TeamArenaPlayer.deal_hand(self, hand_list)
 
         return card.to_int()

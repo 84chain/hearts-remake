@@ -1,5 +1,6 @@
 import random
 from tqdm import tqdm
+from multiprocessing.pool import Pool
 
 from player.players.teams.team_player import *
 
@@ -40,14 +41,14 @@ class Game:
             self.players[i].deal_hand(hands[i])
             self.players[i].team_card = self.teams[i]
 
-        black_ids = [self.teams.index(black_king), self.teams.index(black_ace)]
-        red_ids = [self.teams.index(red_king), self.teams.index(red_ace)]
+        self.black_ids = [self.teams.index(black_king), self.teams.index(black_ace)]
+        self.red_ids = [self.teams.index(red_king), self.teams.index(red_ace)]
 
         self.real_teams = [
-            [i for i in black_ids if i != 0][0] if 0 in black_ids else [i for i in red_ids if i != 0][0],
-            [i for i in black_ids if i != 1][0] if 1 in black_ids else [i for i in red_ids if i != 1][0],
-            [i for i in black_ids if i != 2][0] if 2 in black_ids else [i for i in red_ids if i != 2][0],
-            [i for i in black_ids if i != 3][0] if 3 in black_ids else [i for i in red_ids if i != 3][0]
+            [i for i in self.black_ids if i != 0][0] if 0 in self.black_ids else [i for i in self.red_ids if i != 0][0],
+            [i for i in self.black_ids if i != 1][0] if 1 in self.black_ids else [i for i in self.red_ids if i != 1][0],
+            [i for i in self.black_ids if i != 2][0] if 2 in self.black_ids else [i for i in self.red_ids if i != 2][0],
+            [i for i in self.black_ids if i != 3][0] if 3 in self.black_ids else [i for i in self.red_ids if i != 3][0]
         ]
 
         ace_player = [p for p in self.players if p.team_card.is_eq(black_ace)][0]
@@ -100,7 +101,8 @@ class Game:
             p.update_round(first_table)
             if p.teammate is not None:
                 round_1_teams.append(p.teammate.id)
-        if round_1_teams == self.real_teams:
+        teammates = [i.teammate for i in self.players]
+        if self.real_teams == [i.id for i in teammates if i is not None]:
             return 1
         order_list.append(player_order(next_first_player(first_table, first_player_order)))
 
@@ -120,7 +122,8 @@ class Game:
                 p.update_round(table)
                 if p.teammate is not None:
                     round_teams.append(p.teammate.id)
-            if round_teams == self.real_teams:
+            teammates = [i.teammate for i in self.players]
+            if self.real_teams == [i.id for i in teammates if i is not None]:
                 return rounds
             order_list.append(player_order(next_first_player(table, order)))
 
@@ -129,18 +132,36 @@ class Game:
             p.count_points()
             pointdata.append({"Player": p.id,
                               "Points": p.points})
+        return 0
 
         # reset
         # Game.reset(self)
-        return 0
+        # black_points = sum([i["Points"] for i in pointdata if i["Player"] in self.black_ids])
+        # red_points = sum([i["Points"] for i in pointdata if i["Player"] in self.red_ids])
+        # if black_points == red_points:
+        #     return 0
+        # else:
+        #     if black_points < red_points:
+        #         return -1
+        #     else:
+        #         return 1
 
 
 # Testing team guessing algorithm
 iterations = 1000
+threads = 5
 data = []
-for _ in tqdm(range(iterations), desc="Game.play()"):
-    g = Game(random.choice([1, -1, 2]))
+#
+for _ in tqdm(range(int(iterations)), desc="Game.play()"):
+    g = Game(random.choice([-1, 1, 2]))
     result = g.play()
     data.append(result)
 
-print(sum(data) / (iterations - len([i for i in data if i == 0])))
+# print(len([i for i in data if i == -1]), "Black wins")
+# print(len([i for i in data if i == 1]), "Red wins")
+# print(len([i for i in data if i == 0]), "Ties")
+avg_round = sum(data) / (iterations - len([i for i in data if i == 0]))
+correct_guesses = len([i for i in data if i != 0])
+print("Average round: ", avg_round)
+print("Correct guesses: ", correct_guesses)
+print("Real Average round: ", (13 - avg_round) * (1 - correct_guesses / iterations))
