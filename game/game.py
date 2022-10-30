@@ -31,14 +31,16 @@ class Game:
 
         return self.ctx.result()
 
-points = [[], [], [], []]
-iterations = 100
 
-for i in range(iterations):
-    g = Game()
-    results = g.play()
-    for i in range(4):
-        points[i].append(results[i])
+if __name__ == "__main__":
+    points = [[], [], [], []]
+    iterations = 100
 
-for i in points:
-    print(f"Player {points.index(i)}: ", sum(i) / len(i))
+    for i in range(iterations):
+        g = Game()
+        results = g.play()
+        for j in range(4):
+            points[j].append(results[j])
+
+    for i in points:
+        print(f"Player {points.index(i)}: ", sum(i) / len(i))
