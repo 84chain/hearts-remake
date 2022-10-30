@@ -2,12 +2,14 @@ from setup.setup import *
 from setup.controls import *
 
 class Aggression:
-    def play_first(self, ctx, player):
+    @staticmethod
+    def play_first(ctx, player):
         if club_3 in player.hand:
             return club_3
         return player.choose_card(ctx)
 
-    def play_2nd_or_3rd(self, ctx, player):
+    @staticmethod
+    def play_2nd_or_3rd(ctx, player):
         state = ctx.current_state
         moves = player.legal_moves(state.suit)
 
@@ -39,7 +41,8 @@ class Aggression:
         else:
             return player.give_L(ctx)
 
-    def play_last(self, ctx, player):
+    @staticmethod
+    def play_last(ctx, player):
         state = ctx.current_state
         moves = player.legal_moves(state.suit)
 

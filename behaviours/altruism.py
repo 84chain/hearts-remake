@@ -2,7 +2,8 @@ from setup.setup import *
 from setup.controls import *
 
 class Altruism:
-    def choose_card(self, ctx, player):
+    @staticmethod
+    def choose_card(ctx, player):
         [clubs, diamonds, spades, hearts] = split_hand(player.hand)
 
         clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
@@ -43,7 +44,8 @@ class Altruism:
             return sorted(missing_suits, key=lambda x: (x[1], x[0]))[-1][0]
         return player.choose_card(ctx)
 
-    def avoid_taking(self, ctx, player):
+    @staticmethod
+    def avoid_taking(ctx, player):
         state = ctx.current_state
 
         suit = [i for i in player.hand if i >> 13 == state.suit]
@@ -74,7 +76,8 @@ class Altruism:
         elif state.suit == 3:
             return min(suit)
 
-    def give_L(self, ctx, player):
+    @staticmethod
+    def give_L(ctx, player):
         [clubs, diamonds, spades, hearts] = split_hand(player.hand)
 
         clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
@@ -149,10 +152,11 @@ class Altruism:
             card_list.append([card, rating])
         return sorted(card_list, key=lambda x: (x[-1], x[0]), reverse=True)[0][0]
 
-    def feed_shoot(self, ctx, player):
+    @staticmethod
+    def feed_shoot(ctx, player):
         state = ctx.current_state
 
-        [clubs, diamonds, spades, hearts] = split_hand(player.hand)
+        [clubs, _, spades, _] = split_hand(player.hand)
 
         clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
         spades_left = [i for i in all_spades if i not in spades and i not in ctx.cards_played]
@@ -161,7 +165,7 @@ class Altruism:
         lower_suit = [i for i in suit if i < state.highest()]
 
         if min(suit) > state.highest():
-            return Altruism.avoid_taking(self, ctx, player)
+            return Altruism.avoid_taking(ctx, player)
 
         if state.suit == 0:
             if len(clubs_left) >= len(suit) * 2:
@@ -181,13 +185,15 @@ class Altruism:
         elif state.suit == 3:
             return max(lower_suit)
 
-    def play_first(self, ctx, player):
+    @staticmethod
+    def play_first(ctx, player):
         if club_3 in player.hand:
             return club_3
         else:
-            return Altruism.choose_card(self, ctx, player)
+            return Altruism.choose_card(ctx, player)
 
-    def play_2nd_or_3rd(self, ctx, player):
+    @staticmethod
+    def play_2nd_or_3rd(ctx, player):
         state = ctx.current_state
 
         moves = player.legal_moves(state.suit)
@@ -199,7 +205,7 @@ class Altruism:
 
         if suit:
             if player.teammate.is_shooting:
-                return Altruism.feed_shoot(self, ctx, player)
+                return Altruism.feed_shoot(ctx, player)
             elif player.has_10:
                 return player.avoid_taking(ctx)
             elif player.teammate.has_10:
@@ -226,23 +232,24 @@ class Altruism:
                         position = state.players.index(player.teammate)
                         teammate_card = state.cards[position]
                         if is_taking(teammate_card, player.hand, ctx.cards_played):
-                            return Altruism.avoid_taking(self, ctx, player)
+                            return Altruism.avoid_taking(ctx, player)
                         else:
                             return player.avoid_taking(ctx)
                     else:
-                        return Altruism.avoid_taking(self, ctx, player)
+                        return Altruism.avoid_taking(ctx, player)
         else:
             if player.teammate in state.players:
                 position = state.players.index(player.teammate)
                 teammate_card = state.cards[position]
                 if is_taking(teammate_card, player.hand, ctx.cards_played):
-                    return Altruism.give_L(self, ctx, player)
+                    return Altruism.give_L(ctx, player)
                 else:
                     return player.give_L(ctx)
             else:
-                return Altruism.give_L(self, ctx, player)
+                return Altruism.give_L(ctx, player)
 
-    def play_last(self, ctx, player):
+    @staticmethod
+    def play_last(ctx, player):
         state = ctx.current_state
 
         moves = player.legal_moves(state.suit)
@@ -254,18 +261,18 @@ class Altruism:
 
         if suit:
             if player.teammate.is_shooting:
-                return Altruism.feed_shoot(self, ctx, player)
+                return Altruism.feed_shoot(ctx, player)
             elif player.has_10:
                 return player.avoid_taking(ctx)
             elif player.teammate.has_10:
                 return player.safest_take(ctx)
             else:
                 if state.points() >= taking_point_threshold:
-                    return Altruism.avoid_taking(self, ctx, player)
+                    return Altruism.avoid_taking(ctx, player)
                 else:
                     if state.suit == 1 and state.highest() < d_jack and d_jack in player.hand:
                         return player.safest_take(ctx)
                     else:
-                        return Altruism.avoid_taking(self, ctx, player)
+                        return Altruism.avoid_taking(ctx, player)
         else:
-            return Altruism.give_L(self, ctx, player)
+            return Altruism.give_L(ctx, player)
