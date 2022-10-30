@@ -23,8 +23,8 @@ class Game:
         orders.append(player_order(self.ctx.past_states[-1].taker()))
 
         for i in range(12):
-            for i in orders[-1]:
-                player = self.players[i]
+            for j in orders[-1]:
+                player = self.players[j]
                 card = player.play(self.ctx)
                 self.ctx.play(card, player)
             orders.append(player_order(self.ctx.past_states[-1].taker()))
@@ -36,11 +36,11 @@ if __name__ == "__main__":
     points = [[], [], [], []]
     iterations = 100
 
-    for i in range(iterations):
+    for iteration_num in range(iterations):
         g = Game()
         results = g.play()
-        for j in range(4):
-            points[j].append(results[j])
+        for player_num in range(4):
+            points[player_num].append(results[player_num])
 
-    for i in points:
-        print(f"Player {points.index(i)}: ", sum(i) / len(i))
+    for (index, point_totals) in enumerate(points):
+        print(f"Player {index+1}: ", sum(point_totals) / len(point_totals))

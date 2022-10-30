@@ -2,7 +2,8 @@ from setup.setup import *
 from setup.controls import *
 
 class Shooting:
-    def shoot_first(self, ctx, player):
+    @staticmethod
+    def shoot_first(ctx, player):
         if club_3 in player.hand:
             return club_3
 
@@ -31,7 +32,8 @@ class Shooting:
             else:
                 return sorted(player.hand, key=lambda x: x & card_mask)[0]
 
-    def shoot_2nd_or_3rd(self, ctx, player):
+    @staticmethod
+    def shoot_2nd_or_3rd(ctx, player):
         state = ctx.current_state
 
         moves = player.legal_moves(state.suit)
@@ -56,7 +58,8 @@ class Shooting:
                 player.is_shooting = False
                 return player.give_L(ctx)
 
-    def shoot_last(self, ctx, player):
+    @staticmethod
+    def shoot_last(ctx, player):
         state = ctx.current_state
 
         moves = player.legal_moves(state.suit)
@@ -90,10 +93,12 @@ class Shooting:
                 player.is_shooting = False
                 return player.give_L(ctx)
 
-    def block_first(self, ctx, player):
+    @staticmethod
+    def block_first(ctx, player):
         return player.play_first(ctx)
 
-    def block_2nd_or_3rd(self, ctx, player):
+    @staticmethod
+    def block_2nd_or_3rd(ctx, player):
         state = ctx.current_state
 
         moves = player.legal_moves(ctx)
@@ -113,7 +118,8 @@ class Shooting:
         else:
             return player.give_L(ctx)
 
-    def block_last(self, ctx, player):
+    @staticmethod
+    def block_last(ctx, player):
         state = ctx.current_state
 
         moves = player.legal_moves(ctx)
