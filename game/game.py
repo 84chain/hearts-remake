@@ -31,5 +31,7 @@ class Game:
 
         print(self.ctx.result())
 
-g = Game()
-g.play()
+
+if __name__ == "__main__":
+    g = Game()
+    g.play()
