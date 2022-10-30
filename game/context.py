@@ -35,12 +35,15 @@ class Context:
         self.cards_played.append(card)
 
         if self.current_state.length() == 4:
+            for p in self.players:
+                p.update(self)
+
             self.past_states.append(self.current_state)
             self.current_state = State()
             self.round += 1
 
-            for p in self.players:
-                p.update(self)
-
     def result(self):
+        return [i.get_points() for i in self.players]
+
+    def print_result(self):
         return "\n".join([f"Player {i.id}: {i.get_points()} points" for i in self.players])

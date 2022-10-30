@@ -85,7 +85,7 @@ class Player:
 
     def is_missing_suit(self, ctx):
         other_pawns = [p for p in self.pawns if p.id != self.id]
-        cloned_pawns = [p.create_clone(ctx.current_state.suit) if p.id not in ctx.current_state.player_ids else p for p in other_pawns]
+        cloned_pawns = [p.clone(ctx.current_state.suit) if p.id not in ctx.current_state.player_ids else p for p in other_pawns]
         target_combinations = calculate_combinations(order_pools(cloned_pawns, ctx.cards_played, self.hand))
         total_combinations = calculate_combinations(order_pools(other_pawns, ctx.cards_played, self.hand))
         if total_combinations == 0:
@@ -97,10 +97,10 @@ class Player:
     def choose_card(self, ctx):
         [clubs, diamonds, spades, hearts] = split_hand(self.hand)
 
-        clubs_left = [i for i in self.hand if i not in clubs and i not in ctx.cards_played]
-        diamonds_left = [i for i in self.hand if i not in diamonds and i not in ctx.cards_played]
-        spades_left = [i for i in self.hand if i not in spades and i not in ctx.cards_played]
-        hearts_left = [i for i in self.hand if i not in hearts and i not in ctx.cards_played]
+        clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
+        diamonds_left = [i for i in all_diamonds if i not in diamonds and i not in ctx.cards_played]
+        spades_left = [i for i in all_spades if i not in spades and i not in ctx.cards_played]
+        hearts_left = [i for i in all_hearts if i not in hearts and i not in ctx.cards_played]
 
         card_list = []
 
@@ -154,7 +154,7 @@ class Player:
             return Player.safest_take(self, ctx)
 
         if state.suit == 0:
-            if state.highest > club_10 and club_10 in suit:
+            if state.highest() > club_10 and club_10 in suit:
                 return club_10
             else:
                 return max([i for i in suit if i < state.highest()])
@@ -162,7 +162,10 @@ class Player:
             if min(suit) < d_jack:
                 return max([i for i in suit if i < d_jack])
             else:
-                return Player.block_j(self)
+                try:
+                    return Player.block_j(self)
+                except:
+                    return min(suit)
         elif state.suit == 2:
             if state.highest() > q_spades and q_spades in suit:
                 return q_spades
@@ -180,7 +183,10 @@ class Player:
             if not (state.points() + self.points) and state.highest() < club_10 and club_10 in suit:
                 return club_10
             else:
-                return max([i for i in suit if i != club_10])
+                try:
+                    return max([i for i in suit if i != club_10])
+                except:
+                    return max(suit)
         elif state.suit == 1:
             if jack_highest(self.hand, ctx.cards_played) and d_jack in suit:
                 return d_jack
@@ -188,28 +194,40 @@ class Player:
                 return max(suit)
             else:
                 if j_blocked(state):
-                    return Player.avoid_taking(self, ctx)
+                    try:
+                        return max([i for i in suit if i < d_jack])
+                    except:
+                        return max(suit)
                 else:
-                    return max([i for i in suit if i != d_jack])
+                    try:
+                        return max([i for i in suit if i != d_jack])
+                    except:
+                        return max(suit)
         elif state.suit == 2:
             if (q_spades in suit or q_spades in ctx.cards_played) and q_spades not in state.cards:
-                return max([i for i in suit if i != q_spades])
+                try:
+                    return max([i for i in suit if i != q_spades])
+                except:
+                    return max(suit)
             else:
-                return Player.safest_take(self, ctx)
+                return max([i for i in suit if i != q_spades])
         elif state.suit == 3:
             ten_point_hearts = [i for i in suit if i < h_10]
-            if state.highest() < h_10 and ten_point_hearts:
+            if ten_point_hearts:
                 return max(ten_point_hearts)
             else:
-                return min([i for i in suit if i > state.highest()])
+                try:
+                    return min([i for i in suit if i > state.highest()])
+                except:
+                    return max(suit)
 
     def give_L(self, ctx):
         [clubs, diamonds, spades, hearts] = split_hand(self.hand)
 
-        clubs_left = [i for i in self.hand if i not in clubs and i not in ctx.cards_played]
-        diamonds_left = [i for i in self.hand if i not in diamonds and i not in ctx.cards_played]
-        spades_left = [i for i in self.hand if i not in spades and i not in ctx.cards_played]
-        hearts_left = [i for i in self.hand if i not in hearts and i not in ctx.cards_played]
+        clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
+        diamonds_left = [i for i in all_diamonds if i not in diamonds and i not in ctx.cards_played]
+        spades_left = [i for i in all_spades if i not in spades and i not in ctx.cards_played]
+        hearts_left = [i for i in all_hearts if i not in hearts and i not in ctx.cards_played]
 
         card_list = []
 
@@ -231,7 +249,7 @@ class Player:
             elif card >> 13 == 1:
                 if diamonds_left:
                     len_diamonds = len(diamonds_left)
-                    diamonds.append(card)
+                    diamonds_left.append(card)
                     sorted_diamonds = sorted(diamonds_left)
                     position = sorted_diamonds.index(card)
                     d_scale = len([i for i in diamonds if i > d_jack])

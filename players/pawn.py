@@ -1,5 +1,6 @@
 class Pawn:
     def __init__(self, id):
+        self.card = -1
         self.id = id
         self.points = 0
         self.cards_left = 13
@@ -28,7 +29,7 @@ class Pawn:
     def update(self, ctx):
         state = ctx.current_state
         if self.card == state.highest():
-            self.cards_took.append(state.cards)
+            self.cards_took += state.cards
 
     def clone(self, suit):
         p = Pawn(self.id)

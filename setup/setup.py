@@ -279,15 +279,14 @@ def rate_remaining_hand(h):
 
 
 def create_pool(pawn, cards_played, hand):
-
     clubs_left = [i for i in all_clubs if i not in cards_played and i not in hand]
     diamonds_left = [i for i in all_diamonds if i not in cards_played and i not in hand]
     spades_left = [i for i in all_spades if i not in cards_played and i not in hand]
     hearts_left = [i for i in all_hearts if i not in cards_played and i not in hand]
-    clubs = len(clubs_left) - len(pawn.hand.clubs) if pawn.has_clubs else 0
-    diamonds = len(diamonds_left) - len(pawn.hand.diamonds) if pawn.has_diamonds else 0
-    spades = len(spades_left) - len(pawn.hand.spades) if pawn.has_spades else 0
-    hearts = len(hearts_left) - len(pawn.hand.hearts) if pawn.has_hearts else 0
+    clubs = len(clubs_left) - len([i for i in pawn.hand if i >> 13 == 0]) if pawn.has_clubs else 0
+    diamonds = len(diamonds_left) - len([i for i in pawn.hand if i >> 13 == 1]) if pawn.has_diamonds else 0
+    spades = len(spades_left) - len([i for i in pawn.hand if i >> 13 == 2]) if pawn.has_spades else 0
+    hearts = len(hearts_left) - len([i for i in pawn.hand if i >> 13 == 3]) if pawn.has_hearts else 0
 
     return {
             "clubs": clubs,

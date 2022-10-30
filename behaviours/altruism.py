@@ -5,10 +5,10 @@ class Altruism:
     def choose_card(self, ctx, player):
         [clubs, diamonds, spades, hearts] = split_hand(player.hand)
 
-        clubs_left = [i for i in player.hand if i not in clubs and i not in ctx.cards_played]
-        diamonds_left = [i for i in player.hand if i not in diamonds and i not in ctx.cards_played]
-        spades_left = [i for i in player.hand if i not in spades and i not in ctx.cards_played]
-        hearts_left = [i for i in player.hand if i not in hearts and i not in ctx.cards_played]
+        clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
+        diamonds_left = [i for i in all_diamonds if i not in diamonds and i not in ctx.cards_played]
+        spades_left = [i for i in all_spades if i not in spades and i not in ctx.cards_played]
+        hearts_left = [i for i in all_hearts if i not in hearts and i not in ctx.cards_played]
 
         missing_suits = []
 
@@ -77,10 +77,10 @@ class Altruism:
     def give_L(self, ctx, player):
         [clubs, diamonds, spades, hearts] = split_hand(player.hand)
 
-        clubs_left = [i for i in player.hand if i not in clubs and i not in ctx.cards_played]
-        diamonds_left = [i for i in player.hand if i not in diamonds and i not in ctx.cards_played]
-        spades_left = [i for i in player.hand if i not in spades and i not in ctx.cards_played]
-        hearts_left = [i for i in player.hand if i not in hearts and i not in ctx.cards_played]
+        clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
+        diamonds_left = [i for i in all_diamonds if i not in diamonds and i not in ctx.cards_played]
+        spades_left = [i for i in all_spades if i not in spades and i not in ctx.cards_played]
+        hearts_left = [i for i in all_hearts if i not in hearts and i not in ctx.cards_played]
 
         card_list = []
 
@@ -154,8 +154,8 @@ class Altruism:
 
         [clubs, diamonds, spades, hearts] = split_hand(player.hand)
 
-        clubs_left = [i for i in player.hand if i not in clubs and i not in ctx.cards_played]
-        spades_left = [i for i in player.hand if i not in spades and i not in ctx.cards_played]
+        clubs_left = [i for i in all_clubs if i not in clubs and i not in ctx.cards_played]
+        spades_left = [i for i in all_spades if i not in spades and i not in ctx.cards_played]
 
         suit = [i for i in player.hand if i >> 13 == state.suit]
         lower_suit = [i for i in suit if i < state.highest()]

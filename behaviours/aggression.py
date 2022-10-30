@@ -27,7 +27,7 @@ class Aggression:
                         return player.avoid_taking(ctx)
                 else:
                     diamonds_left = [i for i in all_diamonds if i not in player.hand and i not in ctx.cards_played]
-                    if can_block(player.hand) and state.points() <= 100 and len(diamonds_left) <= (3 - state.length):
+                    if can_block(player.hand) and (state.points() <= 100) and (len(diamonds_left) <= (3 - state.length())):
                         return player.block_j()
                     else:
                         return player.avoid_taking(ctx)
@@ -37,7 +37,7 @@ class Aggression:
                 else:
                     return player.avoid_taking(ctx)
         else:
-            return player.give_l(ctx)
+            return player.give_L(ctx)
 
     def play_last(self, ctx, player):
         state = ctx.current_state
@@ -57,4 +57,4 @@ class Aggression:
                 else:
                     return player.avoid_taking(ctx)
         else:
-            return player.give_l(ctx)
+            return player.give_L(ctx)

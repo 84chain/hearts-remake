@@ -86,7 +86,7 @@ class SoloPlayer(Player):
             no_suit_players = no_suits(state)
             if no_suit_players:
                 for p in no_suit_players:
-                    index = self.pawns.index(p)
+                    index = [i.id for i in self.pawns].index(p)
                     self.pawns[index].is_missing(state.suit)
 
         if Player.can_shoot(self, ctx) and num_guaranteed_takes(self.hand, ctx.cards_played) >= (minimum_takes - ctx.round):
@@ -95,6 +95,11 @@ class SoloPlayer(Player):
             self.possible_takes = possible_takes(self.hand, ctx.cards_played)
         else:
             self.is_shooting = False
+
+        index = ctx.current_state.cards.index(self.card)
+
+        for i in range(4):
+            self.pawns[(i + index) % 4].play(state.cards[(i + index) % 4])
 
         for p in self.pawns:
             p.update(ctx)

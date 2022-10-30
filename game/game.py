@@ -29,7 +29,16 @@ class Game:
                 self.ctx.play(card, player)
             orders.append(player_order(self.ctx.past_states[-1].taker()))
 
-        print(self.ctx.result())
+        return self.ctx.result()
 
-g = Game()
-g.play()
+points = [[], [], [], []]
+iterations = 100
+
+for i in range(iterations):
+    g = Game()
+    results = g.play()
+    for i in range(4):
+        points[i].append(results[i])
+
+for i in points:
+    print(f"Player {points.index(i)}: ", sum(i) / len(i))
